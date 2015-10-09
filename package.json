@@ -11,10 +11,10 @@
   "bugs": {
     "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "文の敬体(ですます調)、常体(である調)を解析。",
   "main": "lib/analyze.js",
-  "files":[
+  "files": [
     "lib",
     "src"
   ],
