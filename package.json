@@ -1,0 +1,33 @@
+{
+  "name": "analyze-desumasu-dearu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azu/analyze-desumasu-dearu.git"
+  },
+  "author": "azu",
+  "email": "azuciao@gmail.com",
+  "homepage": "https://github.com/azu/analyze-desumasu-dearu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
+  },
+  "version": "1.0.0",
+  "description": "analyze desumasu",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "japanese",
+    "analyze"
+  ],
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "espower-babel": "^3.3.0",
+    "mocha": "^2.3.3",
+    "power-assert": "^1.1.0"
+  }
+}
