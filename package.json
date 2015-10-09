@@ -12,12 +12,15 @@
     "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
   },
   "version": "1.0.0",
-  "description": "analyze desumasu",
+  "description": "文の敬体(ですます調)、常体(である調)を解析。",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
+    "build": "babel src --out-dir lib --source-maps",
+    "watch": "babel src --out-dir lib --watch --source-maps",
+    "prepublish": "npm run --if-present build",
     "test": "mocha"
   },
   "keywords": [
