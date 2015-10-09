@@ -21,11 +21,11 @@ describe("analyze-test", function () {
         });
     });
     describe("analyzeDearu", function () {
-        it("should return desumasu count", function () {
+        it("should return dearu count", function () {
             let ret = analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。");
             assert(ret.count === 2);
         });
-        it("should return desumasu {index, match}", function () {
+        it("should return dearu {index, match}", function () {
             let text = "昨日はいい天気であったのだが、今日は悪天候である。";
             let ret = analyzeDearu(text);
             assert(ret.matches.length === 2);
