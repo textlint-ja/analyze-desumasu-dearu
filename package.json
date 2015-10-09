@@ -13,7 +13,11 @@
   },
   "version": "1.0.0",
   "description": "文の敬体(ですます調)、常体(である調)を解析。",
-  "main": "index.js",
+  "main": "lib/analyze.js",
+  "files":[
+    "lib",
+    "src"
+  ],
   "directories": {
     "test": "test"
   },
