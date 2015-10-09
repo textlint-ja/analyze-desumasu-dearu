@@ -1,4 +1,4 @@
-# analyze-desumasu-dearu
+# analyze-desumasu-dearu [![Build Status](https://travis-ci.org/azu/analyze-desumasu-dearu.svg?branch=master)](https://travis-ci.org/azu/analyze-desumasu-dearu)
 
 文の敬体(ですます調)、常体(である調)を解析するライブラリ
 
