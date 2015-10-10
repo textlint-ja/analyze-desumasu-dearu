@@ -14,19 +14,46 @@ let text = "昨日はいい天気であったのだが、今日は悪天候で�
 // である の情報
 let ret = analyzeDearu(text);
 /*
-[{
-    value: "のだが",
-    index: 11
- },
- {
-    value: "である。",
-    index: 21
- }
+[
+    {
+        value: "のだが",
+        lineNumber: 1,
+        columnIndex: 11
+    },
+    {
+        value: "である。",
+        lineNumber: 1,
+        columnIndex: 21
+    }
 ]
 */
 // ですます は含まれてないので空の配列を返す
 analyzeDesumasu(text);// []
 ```
+
+### analyzeDesumasu(text) /analyzeDearu(text) : object[]
+
+`text`に含まれる文の敬体(ですます調) / 常体(である調)を解析して以下の配列を返します
+
+Analyze `text` and return following array of object.
+
+```js
+[{
+    value: string,
+    lineNumber: number,  // start with 1
+    columnIndex: number  // start with 0
+}]
+```
+
+
+## FAQ
+
+Q. Why is `lineNumber` 1-indexed?
+
+A. This is for compatibility with JavaScript AST.
+
+- [Why do `line` of location in JavaScript AST(ESTree) start with 1 and not 0?](https://gist.github.com/azu/8866b2cb9b7a933e01fe "Why do `line` of location in JavaScript AST(ESTree) start with 1 and not 0?")
+
 
 ## Tests
 
