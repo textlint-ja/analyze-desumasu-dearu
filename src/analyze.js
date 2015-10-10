@@ -10,61 +10,55 @@ const DESUMASU_END_PATTERN = /(?:です|ます|ました|ません|ですね|で
  *
  * @param text
  * @param reg
- * @returns {{count: number, matches: Array}}
+ * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
 function countMatchContent(text, reg) {
-    let count = 0;
     let matches = [];
     let tmpMatch;
     while ((tmpMatch = reg.exec(text)) != null) {
         matches.push({
             value: tmpMatch[0],
-            index: reg.lastIndex - tmpMatch[0].length
+            lineNumber: 1,
+            columnIndex: reg.lastIndex - tmpMatch[0].length
         });
     }
-    count += matches.length;
-    return {count, matches};
+    return matches;
 }
 /**
  *
  * @param text
  * @param reg
- * @returns {{count: number, matches: Array}}
+ * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
 function countMatchContentEnd(text, reg) {
-    let count = 0;
     let lines = text.split(/\r\n|\r|\n|\u2028|\u2029/g);
     let matches = [];
-    lines.forEach(line => {
+    lines.forEach((line, index) => {
         let ret = countMatchContent(line, reg);
-        matches = matches.concat(ret.matches);
+        // adjust line number
+        ret.forEach(match => match.lineNumber += index);
+        matches = matches.concat(ret);
     });
-    count += matches.length;
-    return {count, matches};
+    return matches;
 }
 /**
  * `text` の敬体(ですます調)について解析します
  * @param {string} text
- * @returns {{matches: {value:string, index:number}, count: number}}
+ * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
+
 export function analyzeDesumasu(text) {
-    let matchDesumasu = countMatchContent(text, DESUMASU_PATTERN);
-    let matchDesumasuEnd = countMatchContentEnd(text, DESUMASU_END_PATTERN);
-    return {
-        matches: matchDesumasu.matches.concat(matchDesumasuEnd.matches),
-        count: matchDesumasu.count + matchDesumasuEnd.count
-    }
+    let retDesumasu = countMatchContent(text, DESUMASU_PATTERN);
+    let retDesumasuEnd = countMatchContentEnd(text, DESUMASU_END_PATTERN);
+    return retDesumasu.concat(retDesumasuEnd)
 }
 /**
  * `text` の常体(である調)について解析します
  * @param {string} text
- * @returns {{matches: {value:string, index:number}, count: number}}
+ * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
 export function analyzeDearu(text) {
-    let matchDearu = countMatchContent(text, DEARU_PATTERN);
-    let matchDearuEnd = countMatchContentEnd(text, DEARU_END_PATTERN);
-    return {
-        matches: matchDearu.matches.concat(matchDearuEnd.matches),
-        count: matchDearu.count + matchDearuEnd.count
-    }
+    let retDearu = countMatchContent(text, DEARU_PATTERN);
+    let retDearuEnd = countMatchContentEnd(text, DEARU_END_PATTERN);
+    return retDearu.concat(retDearuEnd)
 }
