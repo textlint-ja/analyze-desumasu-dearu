@@ -44,10 +44,14 @@ function countMatchContentEnd(text, reg) {
 /**
  * `text` の敬体(ですます調)について解析します
  * @param {string} text
+ * @param {boolean} analyzeConjunction 接続詞を解析するかどうか default: true
  * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
 
-export function analyzeDesumasu(text) {
+export function analyzeDesumasu(text, analyzeConjunction = true) {
+    if (!analyzeConjunction) {
+        return countMatchContentEnd(text, DESUMASU_END_PATTERN);
+    }
     let retDesumasu = countMatchContent(text, DESUMASU_PATTERN);
     let retDesumasuEnd = countMatchContentEnd(text, DESUMASU_END_PATTERN);
     return retDesumasu.concat(retDesumasuEnd)
@@ -55,9 +59,13 @@ export function analyzeDesumasu(text) {
 /**
  * `text` の常体(である調)について解析します
  * @param {string} text
+ * @param {boolean} analyzeConjunction 接続詞を解析するかどうか default: true
  * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
-export function analyzeDearu(text) {
+export function analyzeDearu(text, analyzeConjunction = true) {
+    if (!analyzeConjunction) {
+        return countMatchContentEnd(text, DEARU_END_PATTERN);
+    }
     let retDearu = countMatchContent(text, DEARU_PATTERN);
     let retDearuEnd = countMatchContentEnd(text, DEARU_END_PATTERN);
     return retDearu.concat(retDearuEnd)
