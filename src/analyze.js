@@ -2,10 +2,10 @@
 "use strict";
 // This RegExp are based of https://github.com/recruit-tech/redpen/blob/master/redpen-core/src/main/java/cc/redpen/validator/sentence/JapaneseStyleValidator.java
 const DEARU_PATTERN = /のだが|ないかと|してきた|であるから/g;
-const DEARU_END_PATTERN = /(?:だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。$/g;
+const DEARU_END_PATTERN = /(だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。?$/;
 
 const DESUMASU_PATTERN = /でしたが|でしたので|ですので|ですが/g;
-const DESUMASU_END_PATTERN = /(?:です|ます|ました|ません|ですね|でしょうか|ください|ませ)。$/g;
+const DESUMASU_END_PATTERN = /(です|ます|ました|ません|ですね|でしょうか|ください|ませ)。?$/;
 /**
  *
  * @param text
@@ -34,10 +34,16 @@ function countMatchContentEnd(text, reg) {
     let lines = text.split(/\r\n|\r|\n|\u2028|\u2029/g);
     let matches = [];
     lines.forEach((line, index) => {
-        let ret = countMatchContent(line, reg);
+        var match = line.match(reg);
+        if (!match) {
+            return;
+        }
         // adjust line number
-        ret.forEach(match => match.lineNumber += index);
-        matches = matches.concat(ret);
+        matches.push({
+            value: match[0],
+            lineNumber: 1 + index,
+            columnIndex: match.index
+        });
     });
     return matches;
 }
