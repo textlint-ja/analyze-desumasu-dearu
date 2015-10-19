@@ -48,7 +48,7 @@ function countMatchContentEnd(text, reg) {
  * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
 
-export function analyzeDesumasu(text, analyzeConjunction = true) {
+export function analyzeDesumasu(text, {analyzeConjunction = true}) {
     if (!analyzeConjunction) {
         return countMatchContentEnd(text, DESUMASU_END_PATTERN);
     }
@@ -62,7 +62,7 @@ export function analyzeDesumasu(text, analyzeConjunction = true) {
  * @param {boolean} analyzeConjunction 接続詞を解析するかどうか default: true
  * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
  */
-export function analyzeDearu(text, analyzeConjunction = true) {
+export function analyzeDearu(text, {analyzeConjunction = true}) {
     if (!analyzeConjunction) {
         return countMatchContentEnd(text, DEARU_END_PATTERN);
     }
