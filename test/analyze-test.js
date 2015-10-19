@@ -37,6 +37,10 @@ describe("analyze-test", function () {
             let results = analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。");
             assert(results.length === 2);
         });
+        it("should return dearu count", function () {
+            let results = analyzeDearu(`2D物理演算ライブラリであるBox2DWeb`);
+            assert(results.length === 0);
+        });
         it("should return dearu {index, match}", function () {
             let text = "昨日はいい天気であったのだが、今日は悪天候である。";
             let results = analyzeDearu(text);
