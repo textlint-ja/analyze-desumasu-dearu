@@ -2,10 +2,10 @@
 "use strict";
 // This RegExp are based of https://github.com/recruit-tech/redpen/blob/master/redpen-core/src/main/java/cc/redpen/validator/sentence/JapaneseStyleValidator.java
 const DEARU_PATTERN = /のだが|ないかと|してきた|であるから/g;
-const DEARU_END_PATTERN = /(だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。?$/;
+const DEARU_END_PATTERN = /(だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。$/;
 
 const DESUMASU_PATTERN = /でしたが|でしたので|ですので|ですが/g;
-const DESUMASU_END_PATTERN = /(です|ます|ました|ません|ですね|でしょうか|ください|ませ)。?$/;
+const DESUMASU_END_PATTERN = /(です|ます|ました|ません|ですね|でしょうか|ください|ませ)。$/;
 /**
  *
  * @param text
