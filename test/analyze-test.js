@@ -6,6 +6,10 @@ describe("analyze-test", function () {
             let results = analyzeDesumasu("昨日は雨だったのですが、持ち直しました。");
             assert(results.length === 2);
         });
+        it("should return desumasu count", function () {
+            let results = analyzeDesumasu("昨日は雨だったのですが、持ち直しました。末尾");
+            assert(results.length === 2);
+        });
         it("should return desumasu {index, match}", function () {
             let text = "昨日は雨だったのですが、持ち直しました。";
             let results = analyzeDesumasu(text);
@@ -35,6 +39,10 @@ describe("analyze-test", function () {
     describe("analyzeDearu", function () {
         it("should return dearu count", function () {
             let results = analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。");
+            assert(results.length === 2);
+        });
+        it("should return dearu count", function () {
+            let results = analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。末尾");
             assert(results.length === 2);
         });
         it("should return dearu count", function () {
