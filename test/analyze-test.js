@@ -64,5 +64,10 @@ describe("analyze-test", function () {
             assert.equal(match1.columnIndex, 21);
             assert.equal(text.substring(match1.columnIndex, match1.columnIndex + match1.value.length), "である。");
         });
+        it("should not match dearu when using `してきた`", function () {
+            let text = "ここまで説明してきた動作の中では、以下の2つがブラウザの仕事になります。";
+            let results = analyzeDearu(text);
+            assert(results.length === 0);
+        });
     });
 });
