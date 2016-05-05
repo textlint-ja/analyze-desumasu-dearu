@@ -37,6 +37,13 @@ describe("analyze-test", function () {
         });
     });
     describe("analyzeDearu", function () {
+        it("should found である without 。", function () {
+            return analyzeDearu("今日はいい天気である").then(results => {
+                assert(results.length === 1);
+                const [result] = results;
+                assert.equal(result.value, "である");
+            });
+        });
         it("should return dearu count", function () {
             return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。").then(results => {
                 assert(results.length === 3);

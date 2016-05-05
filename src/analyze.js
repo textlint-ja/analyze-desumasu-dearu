@@ -1,6 +1,7 @@
 // LICENSE : MIT
 "use strict";
 const ObjectAssign = require("object.assign");
+const find = require('array-find');
 const getTokenizer = require("kuromojin").getTokenizer;
 /**
  * token object
@@ -54,7 +55,8 @@ const mapToAnalyzedResult = tokens => {
         const CONJUGATED_TYPE = /特殊/;
         const indexOfTargetToken = tokens.indexOf(token);
         // value is collection of these tokens: [ {target}, token, token, nextTarget|PunctuationToken ]
-        const nextPunctureToken = tokens.slice(indexOfTargetToken + 1).find(token => {
+        const postTokens = tokens.slice(indexOfTargetToken + 1);
+        const nextPunctureToken = find(postTokens, token => {
             if (PUNCTUATION.test(token["surface_form"])) {
                 return true;
             }
@@ -63,9 +65,10 @@ const mapToAnalyzedResult = tokens => {
             }
             return false;
         });
-        const nextTokenIndex = tokens.indexOf(nextPunctureToken);
-        const postTokens = tokens.slice(indexOfTargetToken, nextTokenIndex + 1);
-        const value = postTokens.map(token => token["surface_form"]).join("");
+        // if has not next token, use between token <--> last.
+        const nextTokenIndex = nextPunctureToken ? tokens.indexOf(nextPunctureToken) : tokens.length;
+        const valueTokens = tokens.slice(indexOfTargetToken, nextTokenIndex + 1);
+        const value = valueTokens.map(token => token["surface_form"]).join("");
         return {
             type: token["conjugated_type"],
             value: value,
