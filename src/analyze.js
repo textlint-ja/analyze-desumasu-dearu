@@ -63,6 +63,10 @@ const mapToAnalyzedResult = tokens => {
             if (CONJUGATED_TYPE.test(token["conjugated_type"])) {
                 return true;
             }
+            // 明示的なtokenがない場合は、名詞がきたらそこで切ってしまう
+            if (token["pos"] === "名詞") {
+                return true;
+            }
             return false;
         });
         // if has not next token, use between token <--> last.

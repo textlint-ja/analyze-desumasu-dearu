@@ -37,6 +37,14 @@ describe("analyze-test", function () {
         });
     });
     describe("analyzeDearu", function () {
+        it("should found である 後ろに明示的なストッパーがない場合", function () {
+            return analyzeDearu("今日はいい天気である場合に明日はどうなるか").then(results => {
+                assert(results.length === 1);
+                const [result] = results;
+                // 名詞までで区切る
+                assert.equal(result.value, "である場合");
+            });
+        });
         it("should found である without 。", function () {
             return analyzeDearu("今日はいい天気である").then(results => {
                 assert(results.length === 1);
