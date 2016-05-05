@@ -87,7 +87,7 @@ Result to
        pronunciation: 'デス' } } ]
 ```
 
-### `analyze(text): AnalyzedResultObject[]`
+### `analyze(text): Promise.<AnalyzedResultObject[]>`
 
 `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します
 
@@ -108,7 +108,7 @@ Result to
 }]
 ```
 
-### `analyzeDesumasu(text): AnalyzedResultObject[]`
+### `analyzeDesumasu(text): Promise.<AnalyzedResultObject[]>`
  
 `text`に含まれる文の敬体(ですます調)を解析して、AnalyzedResultObjectの配列を返します。
 
@@ -125,7 +125,7 @@ export function analyzeDesumasu(text) {
 }
 ```
  
-### `analyzeDearu(text): AnalyzedResultObject[]`
+### `analyzeDearu(text): Promise.<AnalyzedResultObject[]>`
 
 常体(である調)を解析してAnalyzedResultObjectの配列を返します
 
