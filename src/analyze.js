@@ -1,11 +1,31 @@
 // LICENSE : MIT
 "use strict";
-// This RegExp are based of https://github.com/recruit-tech/redpen/blob/master/redpen-core/src/main/java/cc/redpen/validator/sentence/JapaneseStyleValidator.java
-const DEARU_PATTERN = /のだが|ないかと|であるから/g;
-const DEARU_END_PATTERN = /(だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。/;
+const getTokenizer = require("kuromojin").getTokenizer;
+const mapToAnalyzedResult = tokens => {
+    return token => {
+        const PUNCTUATION = /、|。/;
+        const CONJUGATED_TYPE = /特殊/;
+        const indexOfTargetToken = tokens.indexOf(token);
+        // value is collection of these tokens: [ {target}, token, token, nextTarget|PunctuationToken ]
+        const nextPunctureToken = tokens.slice(indexOfTargetToken + 1).find(token => {
+            if (PUNCTUATION.test(token["surface_form"])) {
+                return true;
+            }
+            if (CONJUGATED_TYPE.test(token["conjugated_type"])) {
+                return true;
+            }
+            return false;
+        });
+        const postTokens = tokens.slice(indexOfTargetToken, tokens.indexOf(nextPunctureToken) + 1);
+        const value = postTokens.map(token => token["surface_form"]).join("");
+        return {
+            value: value,
+            surface: token["surface_form"],
+            index: token["word_position"] - 1
+        }
+    }
+};
 
-const DESUMASU_PATTERN = /でしたが|でしたので|ですので|ですが/g;
-const DESUMASU_END_PATTERN = /(です|ます|ました|ません|ですね|でしょうか|ください|ませ)。/;
 /**
  *
  * @param text
@@ -56,27 +76,37 @@ function countMatchContentEnd(text, reg) {
  */
 
 export function analyzeDesumasu(text, options = {analyzeConjunction: true}) {
-    let {analyzeConjunction} = options;
-    if (!analyzeConjunction) {
-        return countMatchContentEnd(text, DESUMASU_END_PATTERN);
-    }
-    let retDesumasu = countMatchContent(text, DESUMASU_PATTERN);
-    let retDesumasuEnd = countMatchContentEnd(text, DESUMASU_END_PATTERN);
-    return retDesumasu.concat(retDesumasuEnd)
+    const analyzeConjunction = options.analyzeConjunction || true;
+    return getTokenizer().then(tokenizer => {
+        const tokens = tokenizer.tokenizeForSentence(text);
+        const filterByType = tokens.filter(token => {
+            // 接続詞を解析しない場合は、連用形かどうかを確認して無視する
+            if (!analyzeConjunction) {
+                return token["conjugated_type"] === "特殊・デス" && token["conjugated_form"] !== "連用形";
+            }
+            return token["conjugated_type"] === "特殊・デス";
+        });
+        return filterByType.map(mapToAnalyzedResult(tokens));
+    });
 }
 /**
  * `text` の常体(である調)について解析します
  * @param {string} text
  * @param {object} options
  * @param {boolean} options.analyzeConjunction 接続詞を解析するかどうか default: true
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * @returns {{value:string, index: number}}[]
  */
 export function analyzeDearu(text, options = {analyzeConjunction: true}) {
-    let {analyzeConjunction} = options;
-    if (!analyzeConjunction) {
-        return countMatchContentEnd(text, DEARU_END_PATTERN);
-    }
-    let retDearu = countMatchContent(text, DEARU_PATTERN);
-    let retDearuEnd = countMatchContentEnd(text, DEARU_END_PATTERN);
-    return retDearu.concat(retDearuEnd)
+    const analyzeConjunction = options.analyzeConjunction || true;
+    return getTokenizer().then(tokenizer => {
+        const tokens = tokenizer.tokenizeForSentence(text);
+        const filterByType = tokens.filter(token => {
+            // 接続詞を解析しない場合は、連用形かどうかを確認して無視する
+            if (!analyzeConjunction) {
+                return token["conjugated_type"] === "特殊・ダ" && token["conjugated_form"] !== "連用形";
+            }
+            return token["conjugated_type"] === "特殊・ダ";
+        });
+        return filterByType.map(mapToAnalyzedResult(tokens));
+    });
 }
