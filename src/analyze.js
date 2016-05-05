@@ -102,6 +102,7 @@ export function analyze(text) {
                     return true;
                 }
             } else if (conjugatedType === Types.desu) {
+                // TODO: can omit?
                 if (token["conjugated_form"] === "基本形") {
                     return true;
                 }
