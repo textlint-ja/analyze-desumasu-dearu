@@ -1,8 +1,55 @@
 // LICENSE : MIT
 "use strict";
+const ObjectAssign = require("object.assign");
 const getTokenizer = require("kuromojin").getTokenizer;
+/**
+ * token object
+ * @typedef {{word_id: number, word_type: string, word_position: number, surface_form: string, pos: string, pos_detail_1: string, pos_detail_2: string, pos_detail_3: string, conjugated_type: string, conjugated_form: string, basic_form: string, reading: string, pronunciation: string}} AnalyzedToken
+ * @see https://github.com/takuyaa/kuromoji.js#api
+ */
+
+/**
+ * Analyzed result Object
+ * @typedef {{type:string, value:string, surface: string, token:AnalyzedToken, index: number}} AnalyzedResultObject
+ */
+
+// Cache tokens
+const _tokensCacheMap = {};
+/**
+ * Type enum
+ * @type {{desu: string, dearu: string}}
+ * @example
+ *  analyze(text).filter(results => results.type === Types.desu);
+ */
+export const Types = {
+    desu: "特殊・デス",
+    dearu: "特殊・ダ"
+};
+/**
+ * @param {AnalyzedResultObject} resultObject
+ * @returns {boolean}
+ */
+export function isDesumasu(resultObject) {
+    return resultObject.type === Types.desu;
+}
+/**
+ * @param {AnalyzedResultObject} resultObject
+ * @returns {boolean}
+ */
+export function isDearu(resultObject) {
+    return resultObject.type === Types.dearu;
+}
+/**
+ *
+ * @param {AnalyzedToken[]}tokens
+ * @returns {function(token: AnalyzedToken)}
+ */
 const mapToAnalyzedResult = tokens => {
-    return token => {
+    /**
+     * @param {AnalyzedToken} token
+     * @return {AnalyzedResultObject}
+     */
+    return function mapTokenToAnalyzedResult(token) {
         const PUNCTUATION = /、|。/;
         const CONJUGATED_TYPE = /特殊/;
         const indexOfTargetToken = tokens.indexOf(token);
@@ -16,97 +63,51 @@ const mapToAnalyzedResult = tokens => {
             }
             return false;
         });
-        const postTokens = tokens.slice(indexOfTargetToken, tokens.indexOf(nextPunctureToken) + 1);
+        const nextTokenIndex = tokens.indexOf(nextPunctureToken);
+        const postTokens = tokens.slice(indexOfTargetToken, nextTokenIndex + 1);
         const value = postTokens.map(token => token["surface_form"]).join("");
         return {
+            type: token["conjugated_type"],
             value: value,
             surface: token["surface_form"],
-            index: token["word_position"] - 1
-        }
-    }
+            // index start with 0
+            index: token["word_position"] - 1,
+            /**
+             * @type {AnalyzedToken}
+             */
+            token: ObjectAssign({}, token)
+        };
+    };
 };
-
 /**
- *
+ * `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します。
  * @param text
- * @param reg
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * @returns {Promise.<AnalyzedResultObject[]>}
  */
-function countMatchContent(text, reg) {
-    let matches = [];
-    let tmpMatch;
-    while ((tmpMatch = reg.exec(text)) != null) {
-        matches.push({
-            value: tmpMatch[0],
-            lineNumber: 1,
-            columnIndex: reg.lastIndex - tmpMatch[0].length
-        });
-    }
-    return matches;
-}
-/**
- *
- * @param text
- * @param reg
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
- */
-function countMatchContentEnd(text, reg) {
-    let lines = text.split(/\r\n|\r|\n|\u2028|\u2029/g);
-    let matches = [];
-    lines.forEach((line, index) => {
-        var match = line.match(reg);
-        if (!match) {
-            return;
-        }
-        // adjust line number
-        matches.push({
-            value: match[0],
-            lineNumber: 1 + index,
-            columnIndex: match.index
-        });
-    });
-    return matches;
-}
-/**
- * `text` の敬体(ですます調)について解析します
- * @param {string} text
- * @param {object} options
- * @param {boolean} options.analyzeConjunction 接続詞を解析するかどうか default: true
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
- */
-
-export function analyzeDesumasu(text, options = {analyzeConjunction: true}) {
-    const analyzeConjunction = options.analyzeConjunction || true;
+export function analyze(text) {
     return getTokenizer().then(tokenizer => {
-        const tokens = tokenizer.tokenizeForSentence(text);
+        const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
+        _tokensCacheMap[text] = tokens;
         const filterByType = tokens.filter(token => {
-            // 接続詞を解析しない場合は、連用形かどうかを確認して無視する
-            if (!analyzeConjunction) {
-                return token["conjugated_type"] === "特殊・デス" && token["conjugated_form"] !== "連用形";
-            }
-            return token["conjugated_type"] === "特殊・デス";
+            const conjugatedType = token["conjugated_type"];
+            return conjugatedType === Types.dearu || conjugatedType === Types.desu;
         });
         return filterByType.map(mapToAnalyzedResult(tokens));
     });
 }
 /**
- * `text` の常体(である調)について解析します
+ * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
- * @param {object} options
- * @param {boolean} options.analyzeConjunction 接続詞を解析するかどうか default: true
- * @returns {{value:string, index: number}}[]
+ * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDearu(text, options = {analyzeConjunction: true}) {
-    const analyzeConjunction = options.analyzeConjunction || true;
-    return getTokenizer().then(tokenizer => {
-        const tokens = tokenizer.tokenizeForSentence(text);
-        const filterByType = tokens.filter(token => {
-            // 接続詞を解析しない場合は、連用形かどうかを確認して無視する
-            if (!analyzeConjunction) {
-                return token["conjugated_type"] === "特殊・ダ" && token["conjugated_form"] !== "連用形";
-            }
-            return token["conjugated_type"] === "特殊・ダ";
-        });
-        return filterByType.map(mapToAnalyzedResult(tokens));
-    });
+export function analyzeDesumasu(text) {
+    return analyze(text).then(results => results.filter(isDesumasu));
+}
+/**
+ * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
+ * @param {string} text
+ * @return {Promise.<AnalyzedResultObject[]>}
+ */
+export function analyzeDearu(text) {
+    return analyze(text).then(results => results.filter(isDearu))
 }

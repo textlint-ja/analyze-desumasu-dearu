@@ -23,7 +23,7 @@ describe("analyze-test", function () {
                 assert.equal(text.substring(match1.index, match1.index + match1.value.length), "です。");
             });
         });
-        it("multiple line should return です {index, match}", function () {
+        it("multiple line should return です {index, value, surface, token}", function () {
             let text = `1行目
 これは2行目です。`;
             return analyzeDesumasu(text).then(results => {
@@ -31,6 +31,8 @@ describe("analyze-test", function () {
                 let match0 = results[0];
                 assert.equal(match0.value, "です。");
                 assert.equal(match0.index, 10);
+                assert.equal(match0.surface, "です");
+                assert(typeof match0.token === "object");
             });
         });
     });
@@ -58,6 +60,7 @@ describe("analyze-test", function () {
                 assert.equal(match0.value, "であった");
                 assert.equal(match0.surface, "で");
                 assert.equal(match0.index, 7);
+                assert(typeof match0.token === "object");
                 assert.equal(text.substring(match0.index, match0.index + match0.value.length), "であった");
                 //
                 assert.equal(match1.value, "だが、");
