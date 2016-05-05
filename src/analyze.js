@@ -1,82 +1,113 @@
 // LICENSE : MIT
 "use strict";
-// This RegExp are based of https://github.com/recruit-tech/redpen/blob/master/redpen-core/src/main/java/cc/redpen/validator/sentence/JapaneseStyleValidator.java
-const DEARU_PATTERN = /のだが|ないかと|であるから/g;
-const DEARU_END_PATTERN = /(だ|である|った|ではない｜ないか|しろ|しなさい|いただきたい|いただく|ならない|あろう|られる)。/;
-
-const DESUMASU_PATTERN = /でしたが|でしたので|ですので|ですが/g;
-const DESUMASU_END_PATTERN = /(です|ます|ました|ません|ですね|でしょうか|ください|ませ)。/;
+const ObjectAssign = require("object.assign");
+const getTokenizer = require("kuromojin").getTokenizer;
 /**
- *
- * @param text
- * @param reg
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * token object
+ * @typedef {{word_id: number, word_type: string, word_position: number, surface_form: string, pos: string, pos_detail_1: string, pos_detail_2: string, pos_detail_3: string, conjugated_type: string, conjugated_form: string, basic_form: string, reading: string, pronunciation: string}} AnalyzedToken
+ * @see https://github.com/takuyaa/kuromoji.js#api
  */
-function countMatchContent(text, reg) {
-    let matches = [];
-    let tmpMatch;
-    while ((tmpMatch = reg.exec(text)) != null) {
-        matches.push({
-            value: tmpMatch[0],
-            lineNumber: 1,
-            columnIndex: reg.lastIndex - tmpMatch[0].length
-        });
-    }
-    return matches;
+
+/**
+ * Analyzed result Object
+ * @typedef {{type:string, value:string, surface: string, token:AnalyzedToken, index: number}} AnalyzedResultObject
+ */
+
+// Cache tokens
+const _tokensCacheMap = {};
+/**
+ * Type enum
+ * @type {{desu: string, dearu: string}}
+ * @example
+ *  analyze(text).filter(results => results.type === Types.desu);
+ */
+export const Types = {
+    desu: "特殊・デス",
+    dearu: "特殊・ダ"
+};
+/**
+ * @param {AnalyzedResultObject} resultObject
+ * @returns {boolean}
+ */
+export function isDesumasu(resultObject) {
+    return resultObject.type === Types.desu;
+}
+/**
+ * @param {AnalyzedResultObject} resultObject
+ * @returns {boolean}
+ */
+export function isDearu(resultObject) {
+    return resultObject.type === Types.dearu;
 }
 /**
  *
- * @param text
- * @param reg
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * @param {AnalyzedToken[]}tokens
+ * @returns {function(token: AnalyzedToken)}
  */
-function countMatchContentEnd(text, reg) {
-    let lines = text.split(/\r\n|\r|\n|\u2028|\u2029/g);
-    let matches = [];
-    lines.forEach((line, index) => {
-        var match = line.match(reg);
-        if (!match) {
-            return;
-        }
-        // adjust line number
-        matches.push({
-            value: match[0],
-            lineNumber: 1 + index,
-            columnIndex: match.index
+const mapToAnalyzedResult = tokens => {
+    /**
+     * @param {AnalyzedToken} token
+     * @return {AnalyzedResultObject}
+     */
+    return function mapTokenToAnalyzedResult(token) {
+        const PUNCTUATION = /、|。/;
+        const CONJUGATED_TYPE = /特殊/;
+        const indexOfTargetToken = tokens.indexOf(token);
+        // value is collection of these tokens: [ {target}, token, token, nextTarget|PunctuationToken ]
+        const nextPunctureToken = tokens.slice(indexOfTargetToken + 1).find(token => {
+            if (PUNCTUATION.test(token["surface_form"])) {
+                return true;
+            }
+            if (CONJUGATED_TYPE.test(token["conjugated_type"])) {
+                return true;
+            }
+            return false;
         });
+        const nextTokenIndex = tokens.indexOf(nextPunctureToken);
+        const postTokens = tokens.slice(indexOfTargetToken, nextTokenIndex + 1);
+        const value = postTokens.map(token => token["surface_form"]).join("");
+        return {
+            type: token["conjugated_type"],
+            value: value,
+            surface: token["surface_form"],
+            // index start with 0
+            index: token["word_position"] - 1,
+            /**
+             * @type {AnalyzedToken}
+             */
+            token: ObjectAssign({}, token)
+        };
+    };
+};
+/**
+ * `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します。
+ * @param text
+ * @returns {Promise.<AnalyzedResultObject[]>}
+ */
+export function analyze(text) {
+    return getTokenizer().then(tokenizer => {
+        const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
+        _tokensCacheMap[text] = tokens;
+        const filterByType = tokens.filter(token => {
+            const conjugatedType = token["conjugated_type"];
+            return conjugatedType === Types.dearu || conjugatedType === Types.desu;
+        });
+        return filterByType.map(mapToAnalyzedResult(tokens));
     });
-    return matches;
 }
 /**
- * `text` の敬体(ですます調)について解析します
+ * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
- * @param {object} options
- * @param {boolean} options.analyzeConjunction 接続詞を解析するかどうか default: true
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * @return {Promise.<AnalyzedResultObject[]>}
  */
-
-export function analyzeDesumasu(text, options = {analyzeConjunction: true}) {
-    let {analyzeConjunction} = options;
-    if (!analyzeConjunction) {
-        return countMatchContentEnd(text, DESUMASU_END_PATTERN);
-    }
-    let retDesumasu = countMatchContent(text, DESUMASU_PATTERN);
-    let retDesumasuEnd = countMatchContentEnd(text, DESUMASU_END_PATTERN);
-    return retDesumasu.concat(retDesumasuEnd)
+export function analyzeDesumasu(text) {
+    return analyze(text).then(results => results.filter(isDesumasu));
 }
 /**
- * `text` の常体(である調)について解析します
+ * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
  * @param {string} text
- * @param {object} options
- * @param {boolean} options.analyzeConjunction 接続詞を解析するかどうか default: true
- * @returns {{value:string, columnIndex: number, lineNumber:number}}[]
+ * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDearu(text, options = {analyzeConjunction: true}) {
-    let {analyzeConjunction} = options;
-    if (!analyzeConjunction) {
-        return countMatchContentEnd(text, DEARU_END_PATTERN);
-    }
-    let retDearu = countMatchContent(text, DEARU_PATTERN);
-    let retDearuEnd = countMatchContentEnd(text, DEARU_END_PATTERN);
-    return retDearu.concat(retDearuEnd)
+export function analyzeDearu(text) {
+    return analyze(text).then(results => results.filter(isDearu))
 }

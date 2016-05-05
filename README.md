@@ -9,51 +9,136 @@
 ## Usage
 
 ```js
-import {analyzeDesumasu, analyzeDearu} from "analyze-desumasu-dearu";
-let text = "昨日はいい天気であったのだが、今日は悪天候である。";
-// である の情報
-let ret = analyzeDearu(text);
-/*
-[
-    {
-        value: "のだが",
-        lineNumber: 1,
-        columnIndex: 11
-    },
-    {
-        value: "である。",
-        lineNumber: 1,
-        columnIndex: 21
-    }
-]
-*/
-// ですます は含まれてないので空の配列を返す
-analyzeDesumasu(text);// []
+"use strict";
+const isDearu = require("analyze-desumasu-dearu").isDearu;
+const isDesumasu = require("analyze-desumasu-dearu").isDesumasu;
+const analyze = require("analyze-desumasu-dearu").analyze;
+const analyzeDearu = require("analyze-desumasu-dearu").analyzeDearu;
+const analyzeDesumasu = require("analyze-desumasu-dearu").analyzeDesumasu;
+const text = "昨日はいい天気であったのだが、今日は悪天候です。";
+analyze(text).then(results => {
+    console.log("==である==");
+    console.log(results.filter(isDearu));
+    console.log("==ですます==");
+    console.log(results.filter(isDesumasu));
+});
 ```
 
-### analyzeDesumasu(text) /analyzeDearu(text) : object[]
+Result to
 
-`text`に含まれる文の敬体(ですます調) / 常体(である調)を解析して以下の配列を返します
+```
+==である==
+[ { type: '特殊・ダ',
+    value: 'であった',
+    surface: 'で',
+    index: 7,
+    token: 
+     { word_id: 305030,
+       word_type: 'KNOWN',
+       word_position: 8,
+       surface_form: 'で',
+       pos: '助動詞',
+       pos_detail_1: '*',
+       pos_detail_2: '*',
+       pos_detail_3: '*',
+       conjugated_type: '特殊・ダ',
+       conjugated_form: '連用形',
+       basic_form: 'だ',
+       reading: 'デ',
+       pronunciation: 'デ' } },
+  { type: '特殊・ダ',
+    value: 'だが、',
+    surface: 'だ',
+    index: 12,
+    token: 
+     { word_id: 305000,
+       word_type: 'KNOWN',
+       word_position: 13,
+       surface_form: 'だ',
+       pos: '助動詞',
+       pos_detail_1: '*',
+       pos_detail_2: '*',
+       pos_detail_3: '*',
+       conjugated_type: '特殊・ダ',
+       conjugated_form: '基本形',
+       basic_form: 'だ',
+       reading: 'ダ',
+       pronunciation: 'ダ' } } ]
+==ですます==
+[ { type: '特殊・デス',
+    value: 'です。',
+    surface: 'です',
+    index: 21,
+    token: 
+     { word_id: 305080,
+       word_type: 'KNOWN',
+       word_position: 22,
+       surface_form: 'です',
+       pos: '助動詞',
+       pos_detail_1: '*',
+       pos_detail_2: '*',
+       pos_detail_3: '*',
+       conjugated_type: '特殊・デス',
+       conjugated_form: '基本形',
+       basic_form: 'です',
+       reading: 'デス',
+       pronunciation: 'デス' } } ]
+```
 
-Analyze `text` and return following array of object.
+### `analyze(text): AnalyzedResultObject[]`
+
+`text`から敬体(ですます調)と常体(である調)を取り出した結果を返します
 
 ```js
+// AnalyzedResultObjectの配列
 [{
+    // 文体を含んだ内容
+    // e.g.) "です。"
     value: string,
-    lineNumber: number,  // start with 1
-    columnIndex: number  // start with 0
+    // 該当するtoken文字
+    // e.g.) "です"
+    surface: string,
+    // textの先頭からの位置(start with 0)
+    index: number,
+    // kuromoji.jsのtokenオブジェクトそのもの https://github.com/takuyaa/kuromoji.js#api
+    // surfaceやindexはこのtokenから算出
+    token: AnalyzedToken
 }]
 ```
 
+### `analyzeDesumasu(text): AnalyzedResultObject[]`
+ 
+`text`に含まれる文の敬体(ですます調)を解析して、AnalyzedResultObjectの配列を返します。
 
-## FAQ
+内部的には`analyze()`を使っています。
 
-Q. Why is `lineNumber` 1-indexed?
+```js
+/**
+ * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
+ * @param {string} text
+ * @return {Promise.<AnalyzedResultObject[]>}
+ */
+export function analyzeDesumasu(text) {
+    return analyze(text).then(results => results.filter(isDesumasu));
+}
+```
+ 
+### `analyzeDearu(text): AnalyzedResultObject[]`
 
-A. This is for compatibility with JavaScript AST.
+常体(である調)を解析してAnalyzedResultObjectの配列を返します
 
-- [Why do `line` of location in JavaScript AST(ESTree) start with 1 and not 0?](https://gist.github.com/azu/8866b2cb9b7a933e01fe "Why do `line` of location in JavaScript AST(ESTree) start with 1 and not 0?")
+内部的には`analyze()`を使っています。
 
+```js
+/**
+ * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
+ * @param {string} text
+ * @return {Promise.<AnalyzedResultObject[]>}
+ */
+export function analyzeDearu(text) {
+    return analyze(text).then(results => results.filter(isDearu))
+}
+```
 
 ## Tests
 
