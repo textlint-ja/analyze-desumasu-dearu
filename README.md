@@ -2,6 +2,8 @@
 
 文の敬体(ですます調)、常体(である調)を解析するライブラリ
 
+形態素解析器として[kuromoji.js](https://github.com/takuyaa/kuromoji.js "kuromoji.js")を利用しています。
+
 ## Installation
 
     npm install analyze-desumasu-dearu
