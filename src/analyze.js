@@ -97,7 +97,15 @@ export function analyze(text) {
         _tokensCacheMap[text] = tokens;
         const filterByType = tokens.filter(token => {
             const conjugatedType = token["conjugated_type"];
-            return conjugatedType === Types.dearu || conjugatedType === Types.desu;
+            if (conjugatedType === Types.dearu) {
+                if (token["conjugated_form"] === "連用形" || token["conjugated_form"] === "連用タ接続") {
+                    return true;
+                }
+            } else if (conjugatedType === Types.desu) {
+                if (token["conjugated_form"] === "基本形") {
+                    return true;
+                }
+            }
         });
         return filterByType.map(mapToAnalyzedResult(tokens));
     });

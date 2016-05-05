@@ -37,6 +37,14 @@ describe("analyze-test", function () {
         });
     });
     describe("analyzeDearu", function () {
+        it("should not match である", function () {
+            // "な" は マッチしない
+            // "conjugated_type": "特殊・ダ",
+            // "conjugated_form": "体言接続",
+            return analyzeDearu("これを使い簡単なものを作る").then(results => {
+                assert(results.length === 0);
+            });
+        });
         it("should found である 後ろに明示的なストッパーがない場合", function () {
             return analyzeDearu("今日はいい天気である場合に明日はどうなるか").then(results => {
                 assert(results.length === 1);
@@ -54,12 +62,12 @@ describe("analyze-test", function () {
         });
         it("should return dearu count", function () {
             return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。").then(results => {
-                assert(results.length === 3);
+                assert(results.length === 2);
             });
         });
         it("should found である + 。", function () {
             return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。末尾").then(results => {
-                assert(results.length === 3);
+                assert(results.length === 2);
             });
         });
         it("should found である + ASCII", function () {
@@ -70,19 +78,13 @@ describe("analyze-test", function () {
         it("should return dearu {index, value, surface}", function () {
             let text = "昨日はいい天気であったのだが、今日は悪天候である。";
             return analyzeDearu(text).then(results => {
-                assert(results.length === 3);
-                let [match0, match1, match2] = results;
-                assert.equal(match0.value, "であった");
-                assert.equal(match0.surface, "で");
-                assert.equal(match0.index, 7);
-                assert(typeof match0.token === "object");
-                assert.equal(text.substring(match0.index, match0.index + match0.value.length), "であった");
-                //
-                assert.equal(match1.value, "だが、");
-                assert.equal(match1.surface, "だ");
-                assert.equal(match1.index, 12);
-                assert.equal(text.substring(match1.index, match1.index + match1.value.length), "だが、");
-                //
+                assert(results.length === 2);
+                let [match1,  match2] = results;
+                assert.equal(match1.value, "であった");
+                assert.equal(match1.surface, "で");
+                assert.equal(match1.index, 7);
+                assert(typeof match1.token === "object");
+                assert.equal(text.substring(match1.index, match1.index + match1.value.length), "であった");
                 assert.equal(match2.value, "である。");
                 assert.equal(match2.surface, "で");
                 assert.equal(match2.index, 21);
