@@ -92,7 +92,7 @@ Result to
 ```js
 // AnalyzedResultObjectの配列
 [{
-    // 文体を含んだ内容
+    // 文体を含んだ内容 - なんとなくいい感じの部分までを繋げた文字列
     // e.g.) "です。"
     value: string,
     // 該当するtoken文字
