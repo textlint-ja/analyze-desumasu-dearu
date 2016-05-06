@@ -12,7 +12,7 @@
     "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
   },
   "version": "3.0.3",
-  "description": "文の敬体(ですます調)、常体(である調)を解析。",
+  "description": "文の敬体(ですます調)、常体(である調)を解析",
   "main": "lib/analyze.js",
   "files": [
     "lib",
