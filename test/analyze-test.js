@@ -37,12 +37,24 @@ describe("analyze-test", function () {
         });
     });
     describe("analyzeDearu", function () {
-        it("should not match である", function () {
-            // "な" は マッチしない
-            // "conjugated_type": "特殊・ダ",
-            // "conjugated_form": "体言接続",
-            return analyzeDearu("これを使い簡単なものを作る").then(results => {
-                assert(results.length === 0);
+        context("when no match", function () {
+            it("このパターンだけ**では**難しい", function () {
+                return analyzeDearu("このパターンだけでは難しい").then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("ではなく", function () {
+                return analyzeDearu("動的にメソッドを追加するだけではなく、既存の実装を上書きする。").then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("簡単**な***ものを作る", function () {
+                // "な" は マッチしない
+                // "conjugated_type": "特殊・ダ",
+                // "conjugated_form": "体言接続",
+                return analyzeDearu("これを使い簡単なものを作る").then(results => {
+                    assert(results.length === 0);
+                });
             });
         });
         it("should found である 後ろに明示的なストッパーがない場合", function () {

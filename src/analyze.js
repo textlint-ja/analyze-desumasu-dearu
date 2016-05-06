@@ -95,11 +95,15 @@ export function analyze(text) {
     return getTokenizer().then(tokenizer => {
         const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
         _tokensCacheMap[text] = tokens;
-        const filterByType = tokens.filter(token => {
+        const filterByType = tokens.filter((token, index) => {
+            const nextToken = tokens[index + 1];
+            // token[特殊・ダ] + nextToken[アル] なら 常体(である調) として認識する
             const conjugatedType = token["conjugated_type"];
             if (conjugatedType === Types.dearu) {
-                if (token["conjugated_form"] === "連用形" || token["conjugated_form"] === "連用タ接続") {
-                    return true;
+                if (token["pos"] === "助動詞" && token["conjugated_form"] === "連用形") {
+                    if (nextToken && nextToken["conjugated_type"] === "五段・ラ行アル") {
+                        return true;
+                    }
                 }
             } else if (conjugatedType === Types.desu) {
                 // TODO: can omit?
