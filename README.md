@@ -122,7 +122,7 @@ const defaultOptions = {
 }]
 ```
 
-### `analyzeDesumasu(text): Promise.<AnalyzedResultObject[]>`
+### `analyzeDesumasu(text, options): Promise.<AnalyzedResultObject[]>`
  
 `text`に含まれる文の敬体(ですます調)を解析して、AnalyzedResultObjectの配列を返します。
 
@@ -132,10 +132,11 @@ const defaultOptions = {
 /**
  * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
+ * @param {Object} options
  * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDesumasu(text) {
-    return analyze(text).then(results => results.filter(isDesumasu));
+export function analyzeDesumasu(text, options = defaultOptions) {
+    return analyze(text, options).then(results => results.filter(isDesumasu));
 }
 ```
  
@@ -163,10 +164,11 @@ const defaultOptions = {
 /**
  * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
  * @param {string} text
+ * @param {Object} options
  * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDearu(text) {
-    return analyze(text).then(results => results.filter(isDearu))
+export function analyzeDearu(text, options = defaultOptions) {
+    return analyze(text, options).then(results => results.filter(isDearu))
 }
 ```
 
