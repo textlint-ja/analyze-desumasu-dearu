@@ -52,7 +52,7 @@ describe("analyze-test", function () {
             });
 
             it("should 文末の です には。がなくても良い", function () {
-                return analyzeDearu("今日はいい天気です", {
+                return analyzeDesumasu("今日はいい天気です", {
                     ignoreConjunction: true
                 }).then(results => {
                     assert(results.length === 1);
