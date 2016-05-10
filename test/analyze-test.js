@@ -36,13 +36,36 @@ describe("analyze-test", function () {
             });
         });
         context("when use ignoreConjunction options", function () {
-            // xit("should 接続的な です を無視する", function () {
-            //     return analyzeDesumasu("今日はいい天気ですが、明日はどうであるか。", {
-            //         ignoreConjunction: true
-            //     }).then(results => {
-            //         assert(results.length === 0);
-            //     });
-            // });
+            it("should 接続的な です を無視する", function () {
+                return analyzeDesumasu("今日はいい天気ですが、明日はどうであるか。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("should 文末の です は見つける", function () {
+                return analyzeDesumasu("今日はいい天気です。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
+            it("should not contain です in examples", function () {
+                const examples = [
+                    "本日は晴天ですが、明日が分からない。",
+                    "本日は晴天ですかと尋ねた。"
+                ];
+                var examplePromises = examples.map(example => {
+                    return analyzeDesumasu(example, {
+                        ignoreConjunction: true
+                    })
+                });
+                return Promise.all(examplePromises).then(allResults => {
+                    allResults.forEach(results => {
+                        assert(results.length === 0);
+                    });
+                })
+            });
         });
 
     });

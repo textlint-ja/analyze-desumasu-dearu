@@ -157,7 +157,12 @@ export function analyze(text, options = defaultOptions) {
             } else if (conjugatedType === Types.desu) {
                 // TODO: can omit?
                 if (token["conjugated_form"] === "基本形") {
-                    return true;
+                    // 文末の"です"のみを許容する場合は、文末であるかどうかを調べる
+                    if (ignoreConjunction) {
+                        return isLastToken(token, tokens);
+                    } else {
+                        return true;
+                    }
                 }
             }
         });
@@ -167,10 +172,11 @@ export function analyze(text, options = defaultOptions) {
 /**
  * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
+ * @param {Object} options
  * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDesumasu(text) {
-    return analyze(text).then(results => results.filter(isDesumasu));
+export function analyzeDesumasu(text, options = defaultOptions) {
+    return analyze(text, options).then(results => results.filter(isDesumasu));
 }
 /**
  * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
