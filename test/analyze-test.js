@@ -50,6 +50,14 @@ describe("analyze-test", function () {
                     assert(results.length === 1);
                 });
             });
+
+            it("should 文末の です には。がなくても良い", function () {
+                return analyzeDearu("今日はいい天気です", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
             it("should not contain です in examples", function () {
                 const examples = [
                     "本日は晴天ですが、明日が分からない。",
