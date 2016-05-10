@@ -69,7 +69,7 @@ describe("analyze-test", function () {
                     assert(results.length === 1);
                 });
             });
-            it("should not contain example 1", function () {
+            it("should not contain である in examples", function () {
                 const examples = [
                     "BufferはStringと相互変換が可能であるため、多くのgulpプラグインと呼ばれるものは、`gulpPrefixer`と`prefixBuffer`にあたる部分だけを実装しています。",
                     "単純なprototype拡張であると言えるので、利点はJavaScriptのprototypeと同様です。",
