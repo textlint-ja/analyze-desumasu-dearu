@@ -35,8 +35,92 @@ describe("analyze-test", function () {
                 assert(typeof match0.token === "object");
             });
         });
+        context("when use ignoreConjunction options", function () {
+            it("should 接続的な です を無視する", function () {
+                return analyzeDesumasu("今日はいい天気ですが、明日はどうであるか。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("should 文末の です は見つける", function () {
+                return analyzeDesumasu("今日はいい天気です。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
+
+            it("should 文末の です には。がなくても良い", function () {
+                return analyzeDesumasu("今日はいい天気です", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
+            it("should not contain です in examples", function () {
+                const examples = [
+                    "本日は晴天ですが、明日が分からない。",
+                    "本日は晴天ですかと尋ねた。"
+                ];
+                var examplePromises = examples.map(example => {
+                    return analyzeDesumasu(example, {
+                        ignoreConjunction: true
+                    })
+                });
+                return Promise.all(examplePromises).then(allResults => {
+                    allResults.forEach(results => {
+                        assert(results.length === 0);
+                    });
+                })
+            });
+        });
+
     });
     describe("analyzeDearu", function () {
+        context("when use ignoreConjunction options", function () {
+            it("should 接続的な である を無視する", function () {
+                return analyzeDearu("今日はいい天気であるが、明日はどうなるかは分からない。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("should 文末の である はチェックする", function () {
+                return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。末尾", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
+            it("should 文末の である には。がなくても良い", function () {
+                return analyzeDearu("今日は悪天候である", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
+            it("should not contain である in examples", function () {
+                const examples = [
+                    "BufferはStringと相互変換が可能であるため、多くのgulpプラグインと呼ばれるものは、`gulpPrefixer`と`prefixBuffer`にあたる部分だけを実装しています。",
+                    "単純なprototype拡張であると言えるので、利点はJavaScriptのprototypeと同様です。",
+                    "`jQuery.fn`の実装を見てみると、実態は`jQuery.prototype`であるため実際にprototype拡張していることがわかります。",
+                    "単純なprototype拡張であると言えるので、利点はJavaScriptのprototypeと同様です。",
+                    "まだNode.jsで使われているCommonJSやES6 Modulesといったものがなかった時代に作られた仕組みであるため、",
+                    "小さものを組み合わせて使えるようなエコシステムの土台となるものを書こうとした際に、プラグインアーキテクチャの仕組みが重要となると言えます。"
+                ];
+                var examplePromises = examples.map(example => {
+                    return analyzeDearu(example, {
+                        ignoreConjunction: true
+                    })
+                });
+                return Promise.all(examplePromises).then(allResults => {
+                    allResults.forEach(results => {
+                        assert(results.length === 0);
+                    });
+                })
+            });
+        });
         context("when no match", function () {
             it("このパターンだけ**では**難しい", function () {
                 return analyzeDearu("このパターンだけでは難しい").then(results => {
