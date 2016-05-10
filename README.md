@@ -87,9 +87,23 @@ Result to
        pronunciation: 'デス' } } ]
 ```
 
-### `analyze(text): Promise.<AnalyzedResultObject[]>`
+### `analyze(text, options): Promise.<AnalyzedResultObject[]>`
 
 `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します
+
+`options`: 無視オプションを指定できます。
+
+```js
+/**
+ * デフォルトのオプション値
+ * @type {{ignoreConjunction: boolean}}
+ */
+const defaultOptions = {
+    // 接続的な使い方を無視する
+    // e.g.) 今日はいい天気であるが明日はどうなるかは分からない。
+    ignoreConjunction: false
+};
+````
 
 ```js
 // AnalyzedResultObjectの配列
@@ -125,9 +139,23 @@ export function analyzeDesumasu(text) {
 }
 ```
  
-### `analyzeDearu(text): Promise.<AnalyzedResultObject[]>`
+### `analyzeDearu(text, options): Promise.<AnalyzedResultObject[]>`
 
 常体(である調)を解析してAnalyzedResultObjectの配列を返します
+
+`options`: 無視オプションを指定できます。
+
+```js
+/**
+ * デフォルトのオプション値
+ * @type {{ignoreConjunction: boolean}}
+ */
+const defaultOptions = {
+    // 接続的なであるの使い方を無視する
+    // e.g.) 今日はいい天気であるが明日はどうなるかは分からない。
+    ignoreConjunction: false
+};
+````
 
 内部的には`analyze()`を使っています。
 
