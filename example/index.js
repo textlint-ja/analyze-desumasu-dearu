@@ -7,15 +7,23 @@ const analyzeDearu = require("analyze-desumasu-dearu").analyzeDearu;
 const analyzeDesumasu = require("analyze-desumasu-dearu").analyzeDesumasu;
 const text = "昨日はいい天気であったのだが、今日は悪天候です。";
 // である の情報
-analyzeDearu(text).then(results => {
-    console.log("==analyzeDearu==");
-    console.log(results);
-});
+analyzeDearu(text)
+    .then(results => {
+        console.log("==analyzeDearu==");
+        console.log(results);
+    })
+    .catch(error => {
+        console.error(error);
+    });
 // ですますの情報
-analyzeDesumasu(text).then(results => {
-    console.log("==analyzeDesumasu==");
-    console.log(results);
-});
+analyzeDesumasu(text)
+    .then(results => {
+        console.log("==analyzeDesumasu==");
+        console.log(results);
+    })
+    .catch(error => {
+        console.error(error);
+    });
 console.log("=== analyze()の場合");
 analyze(text)
     .then(results => {

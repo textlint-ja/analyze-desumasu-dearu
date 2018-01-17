@@ -1,7 +1,7 @@
 // LICENSE : MIT
 "use strict";
 const ObjectAssign = require("object.assign");
-const find = require('array-find');
+const find = require("array-find");
 const getTokenizer = require("kuromojin").getTokenizer;
 /**
  * token object
@@ -132,9 +132,8 @@ const mapToAnalyzedResult = tokens => {
  * @returns {Promise.<AnalyzedResultObject[]>}
  */
 export function analyze(text, options = defaultOptions) {
-    const ignoreConjunction = options.ignoreConjunction !== undefined
-        ? options.ignoreConjunction
-        : defaultOptions.ignoreConjunction;
+    const ignoreConjunction =
+        options.ignoreConjunction !== undefined ? options.ignoreConjunction : defaultOptions.ignoreConjunction;
     return getTokenizer().then(tokenizer => {
         const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
         _tokensCacheMap[text] = tokens;
@@ -185,5 +184,5 @@ export function analyzeDesumasu(text, options = defaultOptions) {
  * @return {Promise.<AnalyzedResultObject[]>}
  */
 export function analyzeDearu(text, options = defaultOptions) {
-    return analyze(text, options).then(results => results.filter(isDearu))
+    return analyze(text, options).then(results => results.filter(isDearu));
 }
