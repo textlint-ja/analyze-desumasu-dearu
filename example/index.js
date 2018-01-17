@@ -17,9 +17,13 @@ analyzeDesumasu(text).then(results => {
     console.log(results);
 });
 console.log("=== analyze()の場合");
-analyze(text).then(results => {
-    console.log("==である==");
-    console.log(results.filter(isDearu));
-    console.log("==ですます==");
-    console.log(results.filter(isDesumasu));
-});
+analyze(text)
+    .then(results => {
+        console.log("==である==");
+        console.log(results.filter(isDearu));
+        console.log("==ですます==");
+        console.log(results.filter(isDesumasu));
+    })
+    .catch(error => {
+        console.error(error);
+    });
