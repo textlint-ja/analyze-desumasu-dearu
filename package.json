@@ -26,24 +26,41 @@
     "watch": "babel src --out-dir lib --watch --source-maps",
     "prepublish": "npm run --if-present build",
     "test": "mocha",
-    "example": "cd example && npm it"
+    "example": "cd example && npm it",
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
+    "precommit": "lint-staged",
+    "postcommit": "git reset"
   },
   "keywords": [
     "japanese",
     "analyze"
   ],
   "devDependencies": {
-    "babel-cli": "^6.5.1",
+    "babel-cli": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.1.2",
-    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-power-assert": "^1.0.0",
-    "babel-register": "^6.8.0",
-    "mocha": "^2.3.3",
-    "power-assert": "^1.3.1"
+    "babel-register": "^6.26.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^6.0.0",
+    "mocha": "^2.5.3",
+    "power-assert": "^1.4.4",
+    "prettier": "^1.10.2"
   },
   "dependencies": {
     "array-find": "^1.0.0",
-    "kuromojin": "^1.2.1",
-    "object.assign": "^4.0.3"
+    "kuromojin": "^1.4.0",
+    "object.assign": "^4.1.0"
+  },
+  "prettier": {
+    "singleQuote": false,
+    "printWidth": 120,
+    "tabWidth": 4
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
