@@ -30,7 +30,7 @@ analyze(text)
         console.log("==である==");
         console.log(results.filter(isDearu));
         console.log("==ですます==");
-        console.log(results);
+        console.log(results.filter(isDesumasu));
     })
     .catch(error => {
         console.error(error);
