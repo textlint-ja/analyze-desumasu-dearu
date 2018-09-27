@@ -5,7 +5,7 @@ const isDesumasu = require("analyze-desumasu-dearu").isDesumasu;
 const analyze = require("analyze-desumasu-dearu").analyze;
 const analyzeDearu = require("analyze-desumasu-dearu").analyzeDearu;
 const analyzeDesumasu = require("analyze-desumasu-dearu").analyzeDesumasu;
-const text = "昨日はいい天気であったのだが、今日は悪天候です。";
+const text = "昨日はいい天気であったのだが、今日は悪天候です。今日は帰ります。";
 // である の情報
 analyzeDearu(text)
     .then(results => {
