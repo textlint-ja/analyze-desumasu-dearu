@@ -91,7 +91,8 @@ Result to
 
 `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します
 
-`options`: 無視オプションを指定できます。
+- `options`
+ - `ignoreConjunction`: 無視オプションを指定できます
 
 ```js
 /**
@@ -144,7 +145,8 @@ export function analyzeDesumasu(text, options = defaultOptions) {
 
 常体(である調)を解析してAnalyzedResultObjectの配列を返します
 
-`options`: 無視オプションを指定できます。
+- `options`
+ - `ignoreConjunction`: 無視オプションを指定できます。
 
 ```js
 /**
@@ -171,6 +173,12 @@ export function analyzeDearu(text, options = defaultOptions) {
     return analyze(text, options).then(results => results.filter(isDearu))
 }
 ```
+
+## UseCase
+
+以下のツールなどで利用しています。
+
+- [textlint-ja/textlint-rule-no-mix-dearu-desumasu: textlint rule that check no mix である and ですます.](https://github.com/textlint-ja/textlint-rule-no-mix-dearu-desumasu)
 
 ## Tests
 
