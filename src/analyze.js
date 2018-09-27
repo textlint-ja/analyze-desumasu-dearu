@@ -33,22 +33,33 @@ const defaultOptions = {
  */
 export const Types = {
     desu: "特殊・デス",
+    masu: "特殊・マス",
     dearu: "特殊・ダ"
 };
+
 /**
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
  */
-export function isDesumasu(resultObject) {
-    return resultObject.type === Types.desu;
+export function isDesumasu({ type }) {
+    return isDesumasuType(type);
 }
+
 /**
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
  */
-export function isDearu(resultObject) {
-    return resultObject.type === Types.dearu;
+export function isDearu({ type }) {
+    return isDearuType(type);
 }
+
+/**
+ * typeが敬体(ですます調)か常体(である調)かを判定する
+ * @param {string} type
+ * @returns {boolean}
+ */
+const isDesumasuType = type => type === Types.desu || type === Types.masu;
+const isDearuType = type => type === Types.dearu;
 
 /**
  * tokenが文末のtokenなのかどうか
@@ -125,6 +136,7 @@ const mapToAnalyzedResult = tokens => {
         };
     };
 };
+
 /**
  * `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します。
  * @param {string} text
@@ -141,7 +153,7 @@ export function analyze(text, options = defaultOptions) {
             const nextToken = tokens[index + 1];
             // token[特殊・ダ] + nextToken[アル] なら 常体(である調) として認識する
             const conjugatedType = token["conjugated_type"];
-            if (conjugatedType === Types.dearu) {
+            if (isDearuType(conjugatedType)) {
                 // "である" を取り出す。この時点では接続なのか末尾なのかは区別できない
                 if (token["pos"] === "助動詞" && token["conjugated_form"] === "連用形") {
                     if (nextToken && nextToken["conjugated_type"] === "五段・ラ行アル") {
@@ -153,7 +165,7 @@ export function analyze(text, options = defaultOptions) {
                         }
                     }
                 }
-            } else if (conjugatedType === Types.desu) {
+            } else if (isDesumasuType(conjugatedType)) {
                 // TODO: can omit?
                 if (token["conjugated_form"] === "基本形") {
                     // 文末の"です"のみを許容する場合は、文末であるかどうかを調べる
@@ -168,6 +180,7 @@ export function analyze(text, options = defaultOptions) {
         return filterByType.map(mapToAnalyzedResult(tokens));
     });
 }
+
 /**
  * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
@@ -177,6 +190,7 @@ export function analyze(text, options = defaultOptions) {
 export function analyzeDesumasu(text, options = defaultOptions) {
     return analyze(text, options).then(results => results.filter(isDesumasu));
 }
+
 /**
  * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
  * @param {string} text

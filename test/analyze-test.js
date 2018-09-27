@@ -10,6 +10,14 @@ describe("analyze-test", function() {
                 assert(result2.value === "です。");
             });
         });
+        it("should found ますが", function() {
+            return analyzeDesumasu("明日は雨になりますが、今日は晴れて良かったです。").then(results => {
+                assert(results.length === 2);
+                const [result1, result2] = results;
+                assert(result1.value === "ますが、");
+                assert(result2.value === "です。");
+            });
+        });
         it("should return {index, match, value}", function() {
             let text = "昨日は雨だったのですが、今日は晴れて良かったです。";
             return analyzeDesumasu(text).then(results => {
@@ -20,6 +28,19 @@ describe("analyze-test", function() {
                 assert.equal(text.substring(match0.index, match0.index + match0.value.length), "ですが、");
                 assert.equal(match1.value, "です。");
                 assert.equal(match1.index, 22);
+                assert.equal(text.substring(match1.index, match1.index + match1.value.length), "です。");
+            });
+        });
+        it("should return {index, match, value}", function() {
+            let text = "明日は雨になりますが、今日は晴れて良かったです。";
+            return analyzeDesumasu(text).then(results => {
+                assert(results.length === 2);
+                const [match0, match1] = results;
+                assert.equal(match0.value, "ますが、");
+                assert.equal(match0.index, 7);
+                assert.equal(text.substring(match0.index, match0.index + match0.value.length), "ますが、");
+                assert.equal(match1.value, "です。");
+                assert.equal(match1.index, 21);
                 assert.equal(text.substring(match1.index, match1.index + match1.value.length), "です。");
             });
         });
@@ -35,9 +56,29 @@ describe("analyze-test", function() {
                 assert(typeof match0.token === "object");
             });
         });
+        it("multiple line should return ます {index, value, surface, token}", function() {
+            let text = `1行目
+これを2行目とします。`;
+            return analyzeDesumasu(text).then(results => {
+                assert(results.length === 1);
+                let match0 = results[0];
+                assert.equal(match0.value, "ます。");
+                assert.equal(match0.index, 12);
+                assert.equal(match0.surface, "ます");
+                assert(typeof match0.token === "object");
+            });
+        });
+
         context("when use ignoreConjunction options", function() {
             it("should 接続的な です を無視する", function() {
                 return analyzeDesumasu("今日はいい天気ですが、明日はどうであるか。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 0);
+                });
+            });
+            it("should 接続的な ます を無視する", function() {
+                return analyzeDesumasu("明日はいい天気になりますが、明後日はどうであるか。", {
                     ignoreConjunction: true
                 }).then(results => {
                     assert(results.length === 0);
@@ -50,7 +91,13 @@ describe("analyze-test", function() {
                     assert(results.length === 1);
                 });
             });
-
+            it("should 文末の ます は見つける", function() {
+                return analyzeDesumasu("今日はいい天気になります。", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
             it("should 文末の です には。がなくても良い", function() {
                 return analyzeDesumasu("今日はいい天気です", {
                     ignoreConjunction: true
@@ -58,8 +105,28 @@ describe("analyze-test", function() {
                     assert(results.length === 1);
                 });
             });
+            it("should 文末の ます には。がなくても良い", function() {
+                return analyzeDesumasu("今日はいい天気になります", {
+                    ignoreConjunction: true
+                }).then(results => {
+                    assert(results.length === 1);
+                });
+            });
             it("should not contain です in examples", function() {
                 const examples = ["本日は晴天ですが、明日が分からない。", "本日は晴天ですかと尋ねた。"];
+                var examplePromises = examples.map(example => {
+                    return analyzeDesumasu(example, {
+                        ignoreConjunction: true
+                    });
+                });
+                return Promise.all(examplePromises).then(allResults => {
+                    allResults.forEach(results => {
+                        assert(results.length === 0);
+                    });
+                });
+            });
+            it("should not contain ます in examples", function() {
+                const examples = ["本日は晴天になりますが、明日が分からない。", "本日は晴天となりますかと尋ねた。"];
                 var examplePromises = examples.map(example => {
                     return analyzeDesumasu(example, {
                         ignoreConjunction: true
