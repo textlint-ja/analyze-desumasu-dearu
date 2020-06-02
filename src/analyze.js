@@ -1,7 +1,5 @@
 // LICENSE : MIT
 "use strict";
-const ObjectAssign = require("object.assign");
-const find = require("array-find");
 const getTokenizer = require("kuromojin").getTokenizer;
 /**
  * token object
@@ -90,7 +88,7 @@ const findNextPunctureToken = (targetToken, allTokens) => {
     const indexOfTargetToken = allTokens.indexOf(targetToken);
     // value is collection of these tokens: [ {target}, token, token, nextTarget|PunctuationToken ]
     const postTokens = allTokens.slice(indexOfTargetToken + 1);
-    return find(postTokens, token => {
+    return postTokens.find(token => {
         // 接続、末尾なので切る
         if (PUNCTUATION.test(token["surface_form"])) {
             return true;
@@ -132,7 +130,7 @@ const mapToAnalyzedResult = tokens => {
             /**
              * @type {AnalyzedToken}
              */
-            token: ObjectAssign({}, token)
+            token: Object.assign({}, token)
         };
     };
 };
