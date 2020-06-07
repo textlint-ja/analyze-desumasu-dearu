@@ -46,10 +46,8 @@
     "prettier": "^1.10.2"
   },
   "dependencies": {
-    "array-find": "^1.0.0",
-    "kuromojin": "^1.4.0",
-    "object.assign": "^4.1.0"
-  },
+    "kuromojin": "^1.4.0"
+},
   "prettier": {
     "singleQuote": false,
     "printWidth": 120,
