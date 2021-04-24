@@ -1,4 +1,4 @@
-# analyze-desumasu-dearu [![Actions Status: test](https://github.com/azu/analyze-desumasu-dearu/workflows/test/badge.svg)](https://github.com/azu/analyze-desumasu-dearu/actions?query=workflow%3A"test")
+# analyze-desumasu-dearu [![Actions Status: test](https://github.com/textlint-ja/analyze-desumasu-dearu/workflows/test/badge.svg)](https://github.com/textlint-ja/analyze-desumasu-dearu/actions?query=workflow%3A"test")
 
 文の敬体(ですます調)、常体(である調)を解析するライブラリ
 

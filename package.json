@@ -2,14 +2,14 @@
   "name": "analyze-desumasu-dearu",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/azu/analyze-desumasu-dearu.git"
+    "url": "git+https://github.com/textlint-ja/analyze-desumasu-dearu.git"
   },
   "author": "azu",
   "email": "azuciao@gmail.com",
-  "homepage": "https://github.com/azu/analyze-desumasu-dearu",
+  "homepage": "https://github.com/textlint-ja/analyze-desumasu-dearu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
+    "url": "https://github.com/textlint-ja/analyze-desumasu-dearu/issues"
   },
   "version": "4.0.1",
   "description": "文の敬体(ですます調)、常体(である調)を解析",
