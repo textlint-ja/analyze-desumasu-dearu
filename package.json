@@ -2,14 +2,14 @@
   "name": "analyze-desumasu-dearu",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/azu/analyze-desumasu-dearu.git"
+    "url": "git+https://github.com/textlint-ja/analyze-desumasu-dearu.git"
   },
   "author": "azu",
   "email": "azuciao@gmail.com",
-  "homepage": "https://github.com/azu/analyze-desumasu-dearu",
+  "homepage": "https://github.com/textlint-ja/analyze-desumasu-dearu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/azu/analyze-desumasu-dearu/issues"
+    "url": "https://github.com/textlint-ja/analyze-desumasu-dearu/issues"
   },
   "version": "4.0.1",
   "description": "文の敬体(ですます調)、常体(である調)を解析",
@@ -27,42 +27,35 @@
     "prepublish": "npm run --if-present build",
     "test": "mocha",
     "example": "cd example && npm it",
-    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\""
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
+    "prepare": "git config --local core.hooksPath .githook"
   },
   "keywords": [
     "japanese",
     "analyze"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "babel-preset-power-assert": "^3.0.0",
-    "husky": "^1.0.1",
-    "lint-staged": "^7.3.0",
-    "mocha": "^5.2.0",
-    "power-assert": "^1.4.4",
-    "prettier": "^1.10.2"
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.13.16",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/register": "^7.13.16",
+    "husky": "^6.0.0",
+    "lint-staged": "^10.5.4",
+    "mocha": "^8.3.2",
+    "prettier": "^2.2.1"
   },
   "dependencies": {
-    "kuromojin": "^2.0.0"
+    "kuromojin": "^3.0.0"
   },
   "prettier": {
     "singleQuote": false,
     "printWidth": 120,
-    "tabWidth": 4
+    "tabWidth": 4,
+    "trailingComma": "none"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "post-commit": "git reset",
-      "pre-commit": "lint-staged"
-    }
   }
 }

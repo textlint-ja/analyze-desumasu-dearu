@@ -8,30 +8,30 @@ const analyzeDesumasu = require("analyze-desumasu-dearu").analyzeDesumasu;
 const text = "昨日はいい天気であったのだが、今日は悪天候です。今日は帰ります。";
 // である の情報
 analyzeDearu(text)
-    .then(results => {
+    .then((results) => {
         console.log("==analyzeDearu==");
         console.log(results);
     })
-    .catch(error => {
+    .catch((error) => {
         console.error(error);
     });
 // ですますの情報
 analyzeDesumasu(text)
-    .then(results => {
+    .then((results) => {
         console.log("==analyzeDesumasu==");
         console.log(results);
     })
-    .catch(error => {
+    .catch((error) => {
         console.error(error);
     });
 console.log("=== analyze()の場合");
 analyze(text)
-    .then(results => {
+    .then((results) => {
         console.log("==である==");
         console.log(results.filter(isDearu));
         console.log("==ですます==");
         console.log(results.filter(isDesumasu));
     })
-    .catch(error => {
+    .catch((error) => {
         console.error(error);
     });
