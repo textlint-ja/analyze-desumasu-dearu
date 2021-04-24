@@ -56,8 +56,8 @@ export function isDearu({ type }) {
  * @param {string} type
  * @returns {boolean}
  */
-const isDesumasuType = type => type === Types.desu || type === Types.masu;
-const isDearuType = type => type === Types.dearu;
+const isDesumasuType = (type) => type === Types.desu || type === Types.masu;
+const isDearuType = (type) => type === Types.dearu;
 
 /**
  * tokenが文末のtokenなのかどうか
@@ -88,7 +88,7 @@ const findNextPunctureToken = (targetToken, allTokens) => {
     const indexOfTargetToken = allTokens.indexOf(targetToken);
     // value is collection of these tokens: [ {target}, token, token, nextTarget|PunctuationToken ]
     const postTokens = allTokens.slice(indexOfTargetToken + 1);
-    return postTokens.find(token => {
+    return postTokens.find((token) => {
         // 接続、末尾なので切る
         if (PUNCTUATION.test(token["surface_form"])) {
             return true;
@@ -109,7 +109,7 @@ const findNextPunctureToken = (targetToken, allTokens) => {
  * @param {AnalyzedToken[]}tokens
  * @returns {function(token: AnalyzedToken)}
  */
-const mapToAnalyzedResult = tokens => {
+const mapToAnalyzedResult = (tokens) => {
     /**
      * @param {AnalyzedToken} token
      * @return {AnalyzedResultObject}
@@ -120,7 +120,7 @@ const mapToAnalyzedResult = tokens => {
         // if has not next token, use between token <--> last.
         const nextTokenIndex = nextPunctureToken ? tokens.indexOf(nextPunctureToken) : tokens.length;
         const valueTokens = tokens.slice(indexOfTargetToken, nextTokenIndex + 1);
-        const value = valueTokens.map(token => token["surface_form"]).join("");
+        const value = valueTokens.map((token) => token["surface_form"]).join("");
         return {
             type: token["conjugated_type"],
             value: value,
@@ -144,7 +144,7 @@ const mapToAnalyzedResult = tokens => {
 export function analyze(text, options = defaultOptions) {
     const ignoreConjunction =
         options.ignoreConjunction !== undefined ? options.ignoreConjunction : defaultOptions.ignoreConjunction;
-    return getTokenizer().then(tokenizer => {
+    return getTokenizer().then((tokenizer) => {
         const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
         _tokensCacheMap[text] = tokens;
         const filterByType = tokens.filter((token, index) => {
@@ -186,7 +186,7 @@ export function analyze(text, options = defaultOptions) {
  * @return {Promise.<AnalyzedResultObject[]>}
  */
 export function analyzeDesumasu(text, options = defaultOptions) {
-    return analyze(text, options).then(results => results.filter(isDesumasu));
+    return analyze(text, options).then((results) => results.filter(isDesumasu));
 }
 
 /**
@@ -196,5 +196,5 @@ export function analyzeDesumasu(text, options = defaultOptions) {
  * @return {Promise.<AnalyzedResultObject[]>}
  */
 export function analyzeDearu(text, options = defaultOptions) {
-    return analyze(text, options).then(results => results.filter(isDearu));
+    return analyze(text, options).then((results) => results.filter(isDearu));
 }

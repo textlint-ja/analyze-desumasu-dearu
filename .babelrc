@@ -1,12 +1,5 @@
 {
   "presets": [
     "@babel/env"
-  ],
-  "env": {
-    "development": {
-      "presets": [
-        "power-assert"
-      ]
-    }
-  }
+  ]
 }
