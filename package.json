@@ -28,7 +28,7 @@
     "test": "mocha",
     "example": "cd example && npm it",
     "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
-    "prepare": "git config --local core.hooksPath .githook"
+    "prepare": "git config --local core.hooksPath .githooks"
   },
   "keywords": [
     "japanese",
