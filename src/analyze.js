@@ -1,6 +1,6 @@
 // LICENSE : MIT
 "use strict";
-const getTokenizer = require("kuromojin").getTokenizer;
+const tokenize = require("kuromojin").tokenize;
 /**
  * token object
  * @typedef {{word_id: number, word_type: string, word_position: number, surface_form: string, pos: string, pos_detail_1: string, pos_detail_2: string, pos_detail_3: string, conjugated_type: string, conjugated_form: string, basic_form: string, reading: string, pronunciation: string}} AnalyzedToken
@@ -12,8 +12,6 @@ const getTokenizer = require("kuromojin").getTokenizer;
  * @typedef {{type:string, value:string, surface: string, token:AnalyzedToken, index: number}} AnalyzedResultObject
  */
 
-// Cache tokens
-const _tokensCacheMap = {};
 /**
  * デフォルトのオプション値
  * @type {{ignoreConjunction: boolean}}
@@ -144,9 +142,7 @@ const mapToAnalyzedResult = (tokens) => {
 export function analyze(text, options = defaultOptions) {
     const ignoreConjunction =
         options.ignoreConjunction !== undefined ? options.ignoreConjunction : defaultOptions.ignoreConjunction;
-    return getTokenizer().then((tokenizer) => {
-        const tokens = _tokensCacheMap[text] ? _tokensCacheMap[text] : tokenizer.tokenizeForSentence(text);
-        _tokensCacheMap[text] = tokens;
+    return tokenize(text).then((tokens) => {
         const filterByType = tokens.filter((token, index) => {
             const nextToken = tokens[index + 1];
             // token[特殊・ダ] + nextToken[アル] なら 常体(である調) として認識する
