@@ -50,11 +50,16 @@ export function isDearu({ type }) {
 }
 
 /**
- * typeが敬体(ですます調)か常体(である調)かを判定する
+ * typeが敬体(ですます調)なら true を返す
  * @param {string} type
  * @returns {boolean}
  */
 const isDesumasuType = (type) => type === Types.desu || type === Types.masu;
+/**
+ * typeが常体(である調)なら true を返す
+ * @param type
+ * @returns {boolean}
+ */
 const isDearuType = (type) => type === Types.dearu;
 
 /**
@@ -122,8 +127,7 @@ const mapToAnalyzedResult = (tokens) => {
         return {
             type: token["conjugated_type"],
             value: value,
-            surface: token["surface_form"],
-            // index start with 0
+            surface: token["surface_form"], // index start with 0
             index: token["word_position"] - 1,
             /**
              * @type {AnalyzedToken}
@@ -160,6 +164,12 @@ export function analyze(text, options = defaultOptions) {
                     }
                 }
             } else if (isDesumasuType(conjugatedType)) {
+                // "やす" は "特殊・マス" として認識されるが、誤判定を避けるために除外する
+                // https://github.com/textlint-ja/textlint-rule-no-mix-dearu-desumasu/issues/52
+                if (token["basic_form"] === "やす") {
+                    return false;
+                }
+
                 // TODO: can omit?
                 if (token["conjugated_form"] === "基本形") {
                     // 文末の"です"のみを許容する場合は、文末であるかどうかを調べる

@@ -139,6 +139,12 @@ describe("analyze-test", function () {
                     });
                 });
             });
+            it("'やす'はですます調としては認識しない", function () {
+                let text = "構成物の崩れやすさ、脆さに注意が必要である。";
+                return analyzeDesumasu(text).then((results) => {
+                    assert(results.length === 0);
+                });
+            });
         });
     });
     describe("analyzeDearu", function () {
