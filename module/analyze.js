@@ -1,17 +1,4 @@
-// LICENSE : MIT
-"use strict";
-const tokenize = require("kuromojin").tokenize;
-/**
- * token object
- * @typedef {{word_id: number, word_type: string, word_position: number, surface_form: string, pos: string, pos_detail_1: string, pos_detail_2: string, pos_detail_3: string, conjugated_type: string, conjugated_form: string, basic_form: string, reading: string, pronunciation: string}} AnalyzedToken
- * @see https://github.com/takuyaa/kuromoji.js#api
- */
-
-/**
- * Analyzed result Object
- * @typedef {{type:string, value:string, surface: string, token:AnalyzedToken, index: number}} AnalyzedResultObject
- */
-
+import { tokenize } from "kuromojin";
 /**
  * デフォルトのオプション値
  * @type {{ignoreConjunction: boolean}}
@@ -32,7 +19,6 @@ export const Types = {
     masu: "特殊・マス",
     dearu: "特殊・ダ"
 };
-
 /**
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
@@ -40,7 +26,6 @@ export const Types = {
 export function isDesumasu({ type }) {
     return isDesumasuType(type);
 }
-
 /**
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
@@ -48,7 +33,6 @@ export function isDesumasu({ type }) {
 export function isDearu({ type }) {
     return isDearuType(type);
 }
-
 /**
  * typeが敬体(ですます調)なら true を返す
  * @param {string} type
@@ -61,7 +45,6 @@ const isDesumasuType = (type) => type === Types.desu || type === Types.masu;
  * @returns {boolean}
  */
 const isDearuType = (type) => type === Types.dearu;
-
 /**
  * tokenが文末のtokenなのかどうか
  * 文末とは"。"やこれ以上後ろにtokenがないケースを示す
@@ -78,6 +61,7 @@ const isLastToken = (targetToken, allTokens) => {
     if (/[\!\?！？。]/.test(nextPunctureTokenSurface)) {
         return true;
     }
+    return false;
 };
 /**
  * targetTokenより後ろにあるtokenから切り口となるtokenを探す
@@ -109,14 +93,8 @@ const findNextPunctureToken = (targetToken, allTokens) => {
 };
 /**
  * tokensからAnalyzedTokenにmapを作る
- * @param {AnalyzedToken[]}tokens
- * @returns {function(token: AnalyzedToken)}
  */
 const mapToAnalyzedResult = (tokens) => {
-    /**
-     * @param {AnalyzedToken} token
-     * @return {AnalyzedResultObject}
-     */
     return function mapTokenToAnalyzedResult(token) {
         const indexOfTargetToken = tokens.indexOf(token);
         const nextPunctureToken = findNextPunctureToken(token, tokens);
@@ -136,12 +114,8 @@ const mapToAnalyzedResult = (tokens) => {
         };
     };
 };
-
 /**
  * `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します。
- * @param {string} text
- * @param {Object} options
- * @returns {Promise.<AnalyzedResultObject[]>}
  */
 export function analyze(text, options = defaultOptions) {
     const ignoreConjunction =
@@ -169,7 +143,6 @@ export function analyze(text, options = defaultOptions) {
                 if (token["basic_form"] === "やす") {
                     return false;
                 }
-
                 // TODO: can omit?
                 if (token["conjugated_form"] === "基本形") {
                     // 文末の"です"のみを許容する場合は、文末であるかどうかを調べる
@@ -180,11 +153,11 @@ export function analyze(text, options = defaultOptions) {
                     }
                 }
             }
+            return false;
         });
         return filterByType.map(mapToAnalyzedResult(tokens));
     });
 }
-
 /**
  * `text` の敬体(ですます調)について解析し、敬体(ですます調)のトークン情報を返します。
  * @param {string} text
@@ -194,7 +167,6 @@ export function analyze(text, options = defaultOptions) {
 export function analyzeDesumasu(text, options = defaultOptions) {
     return analyze(text, options).then((results) => results.filter(isDesumasu));
 }
-
 /**
  * `text` の常体(である調)について解析し、常体(である調)のトークン情報を返します。
  * @param {string} text
@@ -204,3 +176,4 @@ export function analyzeDesumasu(text, options = defaultOptions) {
 export function analyzeDearu(text, options = defaultOptions) {
     return analyze(text, options).then((results) => results.filter(isDearu));
 }
+//# sourceMappingURL=analyze.js.map
