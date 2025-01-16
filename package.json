@@ -1,6 +1,6 @@
 {
   "name": "analyze-desumasu-dearu",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "文の敬体(ですます調)、常体(である調)を解析",
   "keywords": [
     "japanese",
