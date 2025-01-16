@@ -12,13 +12,8 @@
 
 ```js
 "use strict";
-const isDearu = require("analyze-desumasu-dearu").isDearu;
-const isDesumasu = require("analyze-desumasu-dearu").isDesumasu;
-const analyze = require("analyze-desumasu-dearu").analyze;
-const analyzeDearu = require("analyze-desumasu-dearu").analyzeDearu;
-const analyzeDesumasu = require("analyze-desumasu-dearu").analyzeDesumasu;
-const text = "昨日はいい天気であったのだが、今日は悪天候です。";
-analyze(text).then(results => {
+import { isDearu, isDesumasu, analyze, analyzeDearu, analyzeDesumasu } from "analyze-desumasu-dearu";
+analyze(text).then((results) => {
     console.log("==である==");
     console.log(results.filter(isDearu));
     console.log("==ですます==");
@@ -34,7 +29,7 @@ Result to
     value: 'であった',
     surface: 'で',
     index: 7,
-    token: 
+    token:
      { word_id: 305030,
        word_type: 'KNOWN',
        word_position: 8,
@@ -52,7 +47,7 @@ Result to
     value: 'だが、',
     surface: 'だ',
     index: 12,
-    token: 
+    token:
      { word_id: 305000,
        word_type: 'KNOWN',
        word_position: 13,
@@ -71,7 +66,7 @@ Result to
     value: 'です。',
     surface: 'です',
     index: 21,
-    token: 
+    token:
      { word_id: 305080,
        word_type: 'KNOWN',
        word_position: 22,
@@ -91,8 +86,8 @@ Result to
 
 `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します
 
-- `options`
- - `ignoreConjunction`: 無視オプションを指定できます
+-   `options`
+-   `ignoreConjunction`: 無視オプションを指定できます
 
 ```js
 /**
@@ -104,28 +99,30 @@ const defaultOptions = {
     // e.g.) 今日はいい天気であるが明日はどうなるかは分からない。
     ignoreConjunction: false
 };
-````
+```
 
 ```js
 // AnalyzedResultObjectの配列
-[{
-    // 文体を含んだ内容 - なんとなくいい感じの部分までを繋げた文字列
-    // e.g.) "です。"
-    value: string,
-    // 該当するtoken文字
-    // e.g.) "です"
-    surface: string,
-    // textの先頭からの位置(start with 0)
-    index: number,
-    // kuromoji.jsのtokenオブジェクトそのもの https://github.com/takuyaa/kuromoji.js#api
-    // surfaceやindexはこのtokenから算出
-    token: AnalyzedToken
-}]
+[
+    {
+        // 文体を含んだ内容 - なんとなくいい感じの部分までを繋げた文字列
+        // e.g.) "です。"
+        value: string,
+        // 該当するtoken文字
+        // e.g.) "です"
+        surface: string,
+        // textの先頭からの位置(start with 0)
+        index: number,
+        // kuromoji.jsのtokenオブジェクトそのもの https://github.com/takuyaa/kuromoji.js#api
+        // surfaceやindexはこのtokenから算出
+        token: AnalyzedToken
+    }
+];
 ```
 
 ### `analyzeDesumasu(text, options): Promise.<AnalyzedResultObject[]>`
- 
-`text`に含まれる文の敬体(ですます調)を解析して、AnalyzedResultObjectの配列を返します。
+
+`text`に含まれる文の敬体(ですます調)を解析して、AnalyzedResultObject の配列を返します。
 
 内部的には`analyze()`を使っています。
 
@@ -137,16 +134,16 @@ const defaultOptions = {
  * @return {Promise.<AnalyzedResultObject[]>}
  */
 export function analyzeDesumasu(text, options = defaultOptions) {
-    return analyze(text, options).then(results => results.filter(isDesumasu));
+    return analyze(text, options).then((results) => results.filter(isDesumasu));
 }
 ```
- 
+
 ### `analyzeDearu(text, options): Promise.<AnalyzedResultObject[]>`
 
-常体(である調)を解析してAnalyzedResultObjectの配列を返します
+常体(である調)を解析して AnalyzedResultObject の配列を返します
 
-- `options`
- - `ignoreConjunction`: 無視オプションを指定できます。
+-   `options`
+-   `ignoreConjunction`: 無視オプションを指定できます。
 
 ```js
 /**
@@ -158,7 +155,7 @@ const defaultOptions = {
     // e.g.) 今日はいい天気であるが明日はどうなるかは分からない。
     ignoreConjunction: false
 };
-````
+```
 
 内部的には`analyze()`を使っています。
 
@@ -170,7 +167,7 @@ const defaultOptions = {
  * @return {Promise.<AnalyzedResultObject[]>}
  */
 export function analyzeDearu(text, options = defaultOptions) {
-    return analyze(text, options).then(results => results.filter(isDearu))
+    return analyze(text, options).then((results) => results.filter(isDearu));
 }
 ```
 

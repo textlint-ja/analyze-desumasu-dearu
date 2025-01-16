@@ -1,51 +1,56 @@
 {
   "name": "analyze-desumasu-dearu",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/textlint-ja/analyze-desumasu-dearu.git"
-  },
-  "author": "azu",
-  "email": "azuciao@gmail.com",
-  "homepage": "https://github.com/textlint-ja/analyze-desumasu-dearu",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/textlint-ja/analyze-desumasu-dearu/issues"
-  },
   "version": "5.0.2",
   "description": "文の敬体(ですます調)、常体(である調)を解析",
-  "main": "lib/analyze.js",
-  "files": [
-    "lib",
-    "src"
-  ],
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "build": "NODE_ENV=production babel src --out-dir lib --source-maps",
-    "watch": "babel src --out-dir lib --watch --source-maps",
-    "prepublish": "npm run --if-present build",
-    "test": "mocha",
-    "example": "cd example && npm it",
-    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
-    "prepare": "git config --local core.hooksPath .githooks"
-  },
   "keywords": [
     "japanese",
     "analyze"
   ],
-  "devDependencies": {
-    "@babel/cli": "^7.13.16",
-    "@babel/core": "^7.13.16",
-    "@babel/preset-env": "^7.13.15",
-    "@babel/register": "^7.13.16",
-    "husky": "^6.0.0",
-    "lint-staged": "^10.5.4",
-    "mocha": "^8.3.2",
-    "prettier": "^2.2.1"
+  "homepage": "https://github.com/textlint-ja/analyze-desumasu-dearu",
+  "bugs": {
+    "url": "https://github.com/textlint-ja/analyze-desumasu-dearu/issues"
   },
-  "dependencies": {
-    "kuromojin": "^3.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/textlint-ja/analyze-desumasu-dearu.git"
+  },
+  "license": "MIT",
+  "author": "azu",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./module/analyze.d.ts",
+        "default": "./module/analyze.js"
+      },
+      "default": "./module/analyze.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./module/analyze.js",
+  "types": "./module/analyze.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "files": [
+    "bin/",
+    "module/",
+    "src/"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
+    "example": "cd example && npm it",
+    "prepare": "git config --local core.hooksPath .githooks",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "tsx --test test/analyze-test.ts",
+    "watch": "tsc --build --watch",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\""
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css}": [
+      "prettier --write"
+    ]
   },
   "prettier": {
     "singleQuote": false,
@@ -53,10 +58,16 @@
     "tabWidth": 4,
     "trailingComma": "none"
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,css}": [
-      "prettier --write"
-    ]
+  "dependencies": {
+    "kuromojin": "^3.0.0"
   },
-  "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca"
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.8.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "email": "azuciao@gmail.com",
+  "packageManager": "npm@10.9.2+sha512.8ab88f10f224a0c614cb717a7f7c30499014f77134120e9c1f0211ea3cf3397592cbe483feb38e0c4b3be1c54e347292c76a1b5edb94a3289d5448484ab8ac81"
 }

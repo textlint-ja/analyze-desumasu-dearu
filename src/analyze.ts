@@ -1,17 +1,22 @@
 // LICENSE : MIT
-"use strict";
-const tokenize = require("kuromojin").tokenize;
-/**
- * token object
- * @typedef {{word_id: number, word_type: string, word_position: number, surface_form: string, pos: string, pos_detail_1: string, pos_detail_2: string, pos_detail_3: string, conjugated_type: string, conjugated_form: string, basic_form: string, reading: string, pronunciation: string}} AnalyzedToken
- * @see https://github.com/takuyaa/kuromoji.js#api
- */
-
+import type { KuromojiToken } from "kuromojin";
+import { tokenize } from "kuromojin";
 /**
  * Analyzed result Object
- * @typedef {{type:string, value:string, surface: string, token:AnalyzedToken, index: number}} AnalyzedResultObject
  */
-
+export type AnalyzedResultObject = {
+    type: string;
+    value: string;
+    surface: string;
+    token: KuromojiToken;
+    index: number;
+};
+export type AnalyzeOptions = {
+    /**
+     * 接続詞を分析対象から除外するかどうか
+     */
+    ignoreConjunction: boolean;
+};
 /**
  * デフォルトのオプション値
  * @type {{ignoreConjunction: boolean}}
@@ -37,7 +42,7 @@ export const Types = {
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
  */
-export function isDesumasu({ type }) {
+export function isDesumasu({ type }: AnalyzedResultObject) {
     return isDesumasuType(type);
 }
 
@@ -45,7 +50,7 @@ export function isDesumasu({ type }) {
  * @param {AnalyzedResultObject} resultObject
  * @returns {boolean}
  */
-export function isDearu({ type }) {
+export function isDearu({ type }: AnalyzedResultObject) {
     return isDearuType(type);
 }
 
@@ -54,13 +59,13 @@ export function isDearu({ type }) {
  * @param {string} type
  * @returns {boolean}
  */
-const isDesumasuType = (type) => type === Types.desu || type === Types.masu;
+const isDesumasuType = (type: string) => type === Types.desu || type === Types.masu;
 /**
  * typeが常体(である調)なら true を返す
  * @param type
  * @returns {boolean}
  */
-const isDearuType = (type) => type === Types.dearu;
+const isDearuType = (type: string) => type === Types.dearu;
 
 /**
  * tokenが文末のtokenなのかどうか
@@ -69,7 +74,7 @@ const isDearuType = (type) => type === Types.dearu;
  * @param allTokens
  * @returns {boolean}
  */
-const isLastToken = (targetToken, allTokens) => {
+const isLastToken = (targetToken: KuromojiToken, allTokens: KuromojiToken[]): boolean => {
     const nextPunctureToken = findNextPunctureToken(targetToken, allTokens);
     if (nextPunctureToken === undefined) {
         return true;
@@ -78,6 +83,7 @@ const isLastToken = (targetToken, allTokens) => {
     if (/[\!\?！？。]/.test(nextPunctureTokenSurface)) {
         return true;
     }
+    return false;
 };
 /**
  * targetTokenより後ろにあるtokenから切り口となるtokenを探す
@@ -85,7 +91,7 @@ const isLastToken = (targetToken, allTokens) => {
  * @param allTokens
  * @returns {AnalyzedToken|undefined}
  */
-const findNextPunctureToken = (targetToken, allTokens) => {
+const findNextPunctureToken = (targetToken: KuromojiToken, allTokens: KuromojiToken[]) => {
     const PUNCTUATION = /、|。/;
     const CONJUGATED_TYPE = /特殊/;
     const indexOfTargetToken = allTokens.indexOf(targetToken);
@@ -109,15 +115,9 @@ const findNextPunctureToken = (targetToken, allTokens) => {
 };
 /**
  * tokensからAnalyzedTokenにmapを作る
- * @param {AnalyzedToken[]}tokens
- * @returns {function(token: AnalyzedToken)}
  */
-const mapToAnalyzedResult = (tokens) => {
-    /**
-     * @param {AnalyzedToken} token
-     * @return {AnalyzedResultObject}
-     */
-    return function mapTokenToAnalyzedResult(token) {
+const mapToAnalyzedResult = (tokens: KuromojiToken[]) => {
+    return function mapTokenToAnalyzedResult(token: KuromojiToken): AnalyzedResultObject {
         const indexOfTargetToken = tokens.indexOf(token);
         const nextPunctureToken = findNextPunctureToken(token, tokens);
         // if has not next token, use between token <--> last.
@@ -139,11 +139,8 @@ const mapToAnalyzedResult = (tokens) => {
 
 /**
  * `text`から敬体(ですます調)と常体(である調)を取り出した結果を返します。
- * @param {string} text
- * @param {Object} options
- * @returns {Promise.<AnalyzedResultObject[]>}
  */
-export function analyze(text, options = defaultOptions) {
+export function analyze(text: string, options: AnalyzeOptions = defaultOptions): Promise<AnalyzedResultObject[]> {
     const ignoreConjunction =
         options.ignoreConjunction !== undefined ? options.ignoreConjunction : defaultOptions.ignoreConjunction;
     return tokenize(text).then((tokens) => {
@@ -180,6 +177,7 @@ export function analyze(text, options = defaultOptions) {
                     }
                 }
             }
+            return false;
         });
         return filterByType.map(mapToAnalyzedResult(tokens));
     });
@@ -191,7 +189,10 @@ export function analyze(text, options = defaultOptions) {
  * @param {Object} options
  * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDesumasu(text, options = defaultOptions) {
+export function analyzeDesumasu(
+    text: string,
+    options: AnalyzeOptions = defaultOptions
+): Promise<AnalyzedResultObject[]> {
     return analyze(text, options).then((results) => results.filter(isDesumasu));
 }
 
@@ -201,6 +202,6 @@ export function analyzeDesumasu(text, options = defaultOptions) {
  * @param {Object} options
  * @return {Promise.<AnalyzedResultObject[]>}
  */
-export function analyzeDearu(text, options = defaultOptions) {
+export function analyzeDearu(text: string, options: AnalyzeOptions = defaultOptions): Promise<AnalyzedResultObject[]> {
     return analyze(text, options).then((results) => results.filter(isDearu));
 }
