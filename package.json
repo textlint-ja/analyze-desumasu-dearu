@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/textlint-ja/analyze-desumasu-dearu/issues"
   },
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "文の敬体(ですます調)、常体(である調)を解析",
   "main": "lib/analyze.js",
   "files": [
