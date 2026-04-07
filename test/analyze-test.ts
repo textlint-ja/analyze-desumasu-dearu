@@ -171,6 +171,29 @@ describe("analyze-test", function () {
                     assert(results.length === 1);
                 });
             });
+            it("should 接続的な だ を無視する", function () {
+                return analyzeDearu("昨日はいい天気だったのだが、今日は悪天候である。", {
+                    ignoreConjunction: true
+                }).then((results) => {
+                    assert(results.length === 1);
+                    assert.equal(results[0].surface, "で");
+                });
+            });
+            it("should 文末の だ はチェックする", function () {
+                return analyzeDearu("これは問題だ。", {
+                    ignoreConjunction: true
+                }).then((results) => {
+                    assert(results.length === 1);
+                    assert.equal(results[0].surface, "だ");
+                });
+            });
+            it("should 文末の だ には。がなくても良い", function () {
+                return analyzeDearu("これは問題だ", {
+                    ignoreConjunction: true
+                }).then((results) => {
+                    assert(results.length === 1);
+                });
+            });
             it("should not contain である in examples", function () {
                 const examples = [
                     "BufferはStringと相互変換が可能であるため、多くのgulpプラグインと呼ばれるものは、`gulpPrefixer`と`prefixBuffer`にあたる部分だけを実装しています。",
@@ -231,12 +254,12 @@ describe("analyze-test", function () {
         });
         it("should return dearu count", function () {
             return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。").then((results) => {
-                assert(results.length === 2);
+                assert(results.length === 3);
             });
         });
         it("should found である + 。", function () {
             return analyzeDearu("昨日はいい天気であったのだが、今日は悪天候である。末尾").then((results) => {
-                assert(results.length === 2);
+                assert(results.length === 3);
             });
         });
         it("should found である + ASCII", function () {
@@ -247,17 +270,46 @@ describe("analyze-test", function () {
         it("should return dearu {index, value, surface}", function () {
             let text = "昨日はいい天気であったのだが、今日は悪天候である。";
             return analyzeDearu(text).then((results) => {
-                assert(results.length === 2);
-                let [match1, match2] = results;
+                assert(results.length === 3);
+                let [match1, match2, match3] = results;
                 assert.equal(match1.value, "であった");
                 assert.equal(match1.surface, "で");
                 assert.equal(match1.index, 7);
                 assert(typeof match1.token === "object");
                 assert.equal(text.substring(match1.index, match1.index + match1.value.length), "であった");
-                assert.equal(match2.value, "である。");
-                assert.equal(match2.surface, "で");
-                assert.equal(match2.index, 21);
-                assert.equal(text.substring(match2.index, match2.index + match2.value.length), "である。");
+                assert.equal(match2.value, "だが、");
+                assert.equal(match2.surface, "だ");
+                assert.equal(match2.index, 12);
+                assert(typeof match2.token === "object");
+                assert.equal(text.substring(match2.index, match2.index + match2.value.length), "だが、");
+                assert.equal(match3.value, "である。");
+                assert.equal(match3.surface, "で");
+                assert.equal(match3.index, 21);
+                assert.equal(text.substring(match3.index, match3.index + match3.value.length), "である。");
+            });
+        });
+        it("should found だ (基本形)", function () {
+            return analyzeDearu("これは問題だ。").then((results) => {
+                assert(results.length === 1);
+                const [result] = results;
+                assert.equal(result.value, "だ。");
+                assert.equal(result.surface, "だ");
+            });
+        });
+        it("should found だ without 。", function () {
+            return analyzeDearu("これは問題だ").then((results) => {
+                assert(results.length === 1);
+                const [result] = results;
+                assert.equal(result.value, "だ");
+                assert.equal(result.surface, "だ");
+            });
+        });
+        it("should found both だ and である", function () {
+            return analyzeDearu("これは問題だ。あれは課題である。").then((results) => {
+                assert(results.length === 2);
+                const [result1, result2] = results;
+                assert.equal(result1.surface, "だ");
+                assert.equal(result2.surface, "で");
             });
         });
         it("should not match dearu when using `してきた`", function () {

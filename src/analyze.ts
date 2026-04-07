@@ -160,6 +160,14 @@ export function analyze(text: string, options: AnalyzeOptions = defaultOptions):
                         }
                     }
                 }
+                // "だ" (基本形) もである調として検出する
+                if (token["pos"] === "助動詞" && token["conjugated_form"] === "基本形") {
+                    if (ignoreConjunction) {
+                        return isLastToken(token, tokens);
+                    } else {
+                        return true;
+                    }
+                }
             } else if (isDesumasuType(conjugatedType)) {
                 // "やす" は "特殊・マス" として認識されるが、誤判定を避けるために除外する
                 // https://github.com/textlint-ja/textlint-rule-no-mix-dearu-desumasu/issues/52
