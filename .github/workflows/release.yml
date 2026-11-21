@@ -8,13 +8,19 @@ on:
     types:
       - closed
 
+# A release waits for the running release, and is not cancelled
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   release:
     if: |
       github.event.pull_request.merged == true &&
       contains(github.event.pull_request.labels.*.name, 'Type: Release')
     runs-on: ubuntu-latest
-    environment: 
+    timeout-minutes: 10
+    environment:
       name: npm
     permissions:
       contents: write
@@ -29,46 +35,54 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      
+
       - name: Get package info
         id: package
         run: |
           VERSION=$(jq -r '.version' package.json)
           PACKAGE_NAME=$(jq -r '.name' package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-      
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+
+      # Shallow checkout does not fetch tags, so check the remote
       - name: Check if tag exists
         id: tag-check
         run: |
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+          if git ls-remote --tags origin | grep -q "refs/tags/v${VERSION}$"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
         env:
           VERSION: ${{ steps.package.outputs.version }}
-      
-      
+
+
       - name: Setup Node.js
         if: steps.tag-check.outputs.exists == 'false'
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 'lts/*'
+          # Release workflow should not use cache for avoiding cache poisoning
+          # OIDC trusted publishing requires npm 11.5.1+ (bundled with Node.js 24)
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
-      
+          package-manager-cache: false
+
       - name: Install dependencies
         if: steps.tag-check.outputs.exists == 'false'
-        run: npm ci
-      
-      - name: Build package
+        run: npm ci --ignore-scripts
+
+      # npm 7+ does not run `prepublish` on publish, so build lib/ explicitly
+      - name: Build
         if: steps.tag-check.outputs.exists == 'false'
         run: npm run build
-      
-      - name: Publish to npm with provenance
+
+      # Stage the package on npm. A maintainer approves it with 2FA to publish it.
+      # https://docs.npmjs.com/staged-publishing
+      # Requires npm 11.15.0+ (bundled with Node.js 24)
+      - name: Stage publish to npm
         if: steps.tag-check.outputs.exists == 'false'
-        run: npm publish --access public
-      
+        run: npm stage publish --access public
+
       - name: Create GitHub Release with tag
         id: create-release
         if: steps.tag-check.outputs.exists == 'false'
@@ -77,20 +91,21 @@ jobs:
             --title "v$VERSION" \
             --target "$SHA" \
             --notes "$PR_BODY")
-          echo "url=$RELEASE_URL" >> $GITHUB_OUTPUT
+          echo "url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.package.outputs.version }}
           SHA: ${{ github.sha }}
           PR_BODY: ${{ github.event.pull_request.body }}
-  
+
   comment:
     needs: release
     if: |
-      always() && 
-      github.event_name == 'pull_request' && 
+      always() &&
+      github.event_name == 'pull_request' &&
       needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       pull-requests: write
     steps:
@@ -99,8 +114,10 @@ jobs:
         run: |
           gh pr comment "$PR_NUMBER" \
             --repo "$REPOSITORY" \
-            --body "✅ **Release v$VERSION completed successfully!**
-          
+            --body "✅ **Release v$VERSION is staged on npm!**
+
+          Approve it with 2FA to publish: https://www.npmjs.com/package/$PACKAGE_NAME (Staged Packages tab) or \`npm stage approve <stage-id>\`
+
           - 📦 npm package: https://www.npmjs.com/package/$PACKAGE_NAME/v/$VERSION
           - 🏷️ GitHub Release: $RELEASE_URL
           - 🔗 Workflow run: $SERVER_URL/$REPOSITORY/actions/runs/$RUN_ID"
@@ -113,14 +130,14 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
-      
+
       - name: Comment on PR - Failure
         if: needs.release.result == 'failure'
         run: |
           gh pr comment "$PR_NUMBER" \
             --repo "$REPOSITORY" \
             --body "❌ **Release v$VERSION failed**
-          
+
           Please check the workflow logs for details.
           🔗 Workflow run: $SERVER_URL/$REPOSITORY/actions/runs/$RUN_ID"
         env:
