@@ -74,7 +74,7 @@ const isDearuType = (type: string) => type === Types.dearu;
  * @param allTokens
  * @returns {boolean}
  */
-const isLastToken = (targetToken: KuromojiToken, allTokens: KuromojiToken[]): boolean => {
+const isLastToken = (targetToken: KuromojiToken, allTokens: readonly KuromojiToken[]): boolean => {
     const nextPunctureToken = findNextPunctureToken(targetToken, allTokens);
     if (nextPunctureToken === undefined) {
         return true;
@@ -91,7 +91,7 @@ const isLastToken = (targetToken: KuromojiToken, allTokens: KuromojiToken[]): bo
  * @param allTokens
  * @returns {AnalyzedToken|undefined}
  */
-const findNextPunctureToken = (targetToken: KuromojiToken, allTokens: KuromojiToken[]) => {
+const findNextPunctureToken = (targetToken: KuromojiToken, allTokens: readonly KuromojiToken[]) => {
     const PUNCTUATION = /、|。/;
     const CONJUGATED_TYPE = /特殊/;
     const indexOfTargetToken = allTokens.indexOf(targetToken);
@@ -116,7 +116,7 @@ const findNextPunctureToken = (targetToken: KuromojiToken, allTokens: KuromojiTo
 /**
  * tokensからAnalyzedTokenにmapを作る
  */
-const mapToAnalyzedResult = (tokens: KuromojiToken[]) => {
+const mapToAnalyzedResult = (tokens: readonly KuromojiToken[]) => {
     return function mapTokenToAnalyzedResult(token: KuromojiToken): AnalyzedResultObject {
         const indexOfTargetToken = tokens.indexOf(token);
         const nextPunctureToken = findNextPunctureToken(token, tokens);
